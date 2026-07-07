@@ -1,0 +1,109 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Information about the user",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "username": { "type": "string" },
+        "country": { "type": "string" },
+        "phone": { "type": "string" },
+        "province": { "type": "string" },
+        "age": { "type": "string" },
+        "isVip": { "type": "boolean" },
+        "vipExpiry": { "type": "number" },
+        "profilePic": { "type": "string" },
+        "referralCode": { "type": "string" },
+        "invitedBy": { "type": "string" },
+        "claimedInvites": { "type": "number" }
+      },
+      "required": ["uid", "username", "phone"]
+    },
+    "Match": {
+      "title": "Match",
+      "description": "Football match prediction",
+      "type": "object",
+      "properties": {
+        "homeTeam": { "type": "string" },
+        "awayTeam": { "type": "string" },
+        "league": { "type": "string" },
+        "startTime": { "type": "string" },
+        "tips": { "type": "array" },
+        "isVipMatch": { "type": "boolean" }
+      }
+    },
+    "Ficha": {
+      "title": "Ficha",
+      "description": "Accumulator or ticket",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "totalOdds": { "type": "number" },
+        "selections": { "type": "array" },
+        "stake": { "type": "string" },
+        "estimatedReturn": { "type": "string" },
+        "assertiveness": { "type": "number" },
+        "elephantBetId": { "type": "string" },
+        "premierBetId": { "type": "string" },
+        "bantuBetId": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "date": { "type": "string" }
+      }
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "Message in the public chat",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "username": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "profilePic": { "type": "string" }
+      }
+    },
+    "Alert": {
+      "title": "Alert",
+      "description": "System alert",
+      "type": "object",
+      "properties": {
+        "titulo": { "type": "string" },
+        "mensagem": { "type": "string" },
+        "mostrar": { "type": "string" },
+        "token": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents"
+    },
+    "/predictions/{date}/matches/{matchId}": {
+      "schema": "Match",
+      "description": "Daily match predictions"
+    },
+    "/predictions/{date}/fichas/{fichaId}": {
+      "schema": "Ficha",
+      "description": "Daily tickets/accumulators"
+    },
+    "/ganhos/{ganhoId}": {
+      "schema": "Ficha",
+      "description": "Historical wins"
+    },
+    "/chat/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Public chat messages"
+    },
+    "/alerts/current": {
+      "schema": "Alert",
+      "description": "Current system alert"
+    },
+    "/users/{userId}/referrals/{referralId}": {
+      "schema": "UserProfile",
+      "description": "Users invited by a specific user"
+    }
+  }
+}

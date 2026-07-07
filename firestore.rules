@@ -1,0 +1,108 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: userId (auth.uid)
+    // Fields:
+    //   - uid: string (required)
+    //   - username: string (required)
+    //   - phone: string (required)
+    //   - country: string
+    //   - province: string
+    //   - age: string
+    //   - isVip: boolean
+    //   - vipExpiry: number
+    //   - profilePic: string
+    //   - referralCode: string
+    //   - invitedBy: string
+    //   - claimedInvites: number
+    //
+    // Collection: chat
+    // Fields:
+    //   - uid: string
+    //   - username: string
+    //   - text: string
+    //   - timestamp: number
+    //   - profilePic: string
+    //
+    // Collection: predictions
+    // (Contains matches and fichas)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' || 
+         (request.auth.token.email == "pedroyungungu2@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'username', 'phone']) &&
+             data.uid is string && data.uid.size() > 0 &&
+             data.username is string && data.username.size() > 0 && data.username.size() < 50 &&
+             data.phone is string && data.phone.size() > 5;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      // Users can read their own profile. Admins can read all.
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Create: Users can create their own profile if authenticated and data is valid.
+      // Cannot set themselves as admin.
+      allow create: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) && 
+                    (!('role' in request.resource.data) || request.resource.data.role != 'admin');
+      
+      // Update: Users can update their own profile. Cannot change role unless admin.
+      allow update: if (isOwner(userId) && isValidUser(request.resource.data) && 
+                       (request.resource.data.role == resource.data.role || !('role' in resource.data))) || isAdmin();
+      
+      match /referrals/{referralId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow write: if isAdmin(); // Only system/admin should manage this directly or via functions
+      }
+    }
+
+    match /chat/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid &&
+                    request.resource.data.text is string && request.resource.data.text.size() < 500;
+      allow delete: if isAdmin();
+    }
+
+    match /predictions/{date}/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /ganhos/{ganhoId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /alerts/{alertId} {
+      allow read: if true; // Public alerts
+      allow write: if isAdmin();
+    }
+  }
+}

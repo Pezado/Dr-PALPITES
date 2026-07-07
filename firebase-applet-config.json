@@ -1,0 +1,10 @@
+{
+  "projectId": "toneladas-palpites",
+  "appId": "1:675877479512:web:fb87375cde05064c05d62d",
+  "apiKey": "AIzaSyBKiRdasIDGRVpckogAZer1ETcEfPltvRc",
+  "authDomain": "toneladas-palpites.firebaseapp.com",
+  "databaseURL": "https://toneladas-palpites-default-rtdb.firebaseio.com",
+  "storageBucket": "toneladas-palpites.firebasestorage.app",
+  "messagingSenderId": "675877479512",
+  "measurementId": "G-GFVYL15SYY"
+}
