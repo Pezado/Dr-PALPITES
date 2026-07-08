@@ -661,7 +661,7 @@ const AdSenseBanner = ({ isDarkMode, slot }: { isDarkMode: boolean; slot?: strin
   }, []);
 
   return (
-    <div className={`my-4 p-4 rounded-[1.8rem] border-4 flex flex-col items-center justify-center relative overflow-hidden shadow-md min-h-[90px] ${isDarkMode ? 'bg-zinc-900/40 border-zinc-800' : 'bg-slate-50 border-slate-200'}`}>
+    <div className={isDarkMode ? "my-4 p-4 rounded-[1.8rem] border-4 flex flex-col items-center justify-center relative overflow-hidden shadow-md min-h-[90px] bg-zinc-900/40 border-zinc-800" : "my-4 p-4 rounded-[1.8rem] border-4 flex flex-col items-center justify-center relative overflow-hidden shadow-md min-h-[90px] bg-slate-50 border-slate-200"}>
       <span className="absolute top-1.5 right-3 text-[7px] font-black tracking-widest text-zinc-500 uppercase italic">Anúncio Google</span>
       <div className="w-full flex items-center justify-center min-h-[50px]">
         <ins className="adsbygoogle"
@@ -710,7 +710,7 @@ const App: React.FC = () => {
     whatsapp: "https://chat.whatsapp.com/CUCKC54B70KB1mziO1QwRy?mode=gi_t",
     facebook: "https://www.facebook.com/profile.php?id=100083556525090",
     support: "+244942607599",
-    logoUrl: "https://fermagna-bahgf-screenshot.webb",
+    logoUrl: "https://i.ibb.co/xq4qVtZd/grok-image-lf8jcb.webp",
     loja: "https://fermagna.netlify.app/"
   });
   const [authMode, setAuthMode] = useState<"login" | "register" | "recovery">("login");
@@ -899,7 +899,7 @@ const App: React.FC = () => {
           whatsapp: "https://chat.whatsapp.com/CUCKC54B70KB1mziO1QwRy?mode=gi_t",
           facebook: "https://www.facebook.com/profile.php?id=100083556525090",
           support: "+244942607599",
-          logoUrl: "https://fermagna-bahgf-screenshot.webb",
+          logoUrl: "https://i.ibb.co/xq4qVtZd/grok-image-lf8jcb.webp",
           loja: "https://fermagna.netlify.app/"
         }).catch(err => console.error("Error setting initial config:", err));
       }
@@ -1380,7 +1380,7 @@ const App: React.FC = () => {
 
   if (!user) {
     return (
-      <div className={`min-h-screen ${isDarkMode ? 'bg-[#020617] text-white' : 'bg-white text-slate-900'} flex flex-col p-6 items-center justify-center transition-all overflow-y-auto`}>
+      <div className={isDarkMode ? "min-h-screen bg-[#020617] text-white flex flex-col p-6 items-center justify-center transition-all overflow-y-auto" : "min-h-screen bg-white text-slate-900 flex flex-col p-6 items-center justify-center transition-all overflow-y-auto"}>
         <div className="absolute top-6 right-6 flex gap-3">
           <button onClick={() => {
              const langs: Lang[] = ['pt', 'en', 'fr', 'es'];
@@ -1401,19 +1401,19 @@ const App: React.FC = () => {
              <div className="w-16 h-16 rounded-[1.8rem] mx-auto overflow-hidden shadow-[0_0_40px_rgba(245,158,11,0.25)] border-2 border-amber-500 flex items-center justify-center bg-zinc-950">
                <img src={appConfig.logoUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'https://fermagna-bahgf-screenshot.webb'; }} />
              </div>
-             <h1 className={`text-2xl font-black uppercase italic tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>DR <span className="text-amber-500">PALPITES</span></h1>
+             <h1 className={isDarkMode ? "text-2xl font-black uppercase italic tracking-tighter text-white" : "text-2xl font-black uppercase italic tracking-tighter text-slate-900"}>DR <span className="text-amber-500">PALPITES</span></h1>
              <div className="space-y-1">
                 <h2 className="text-amber-500 font-black italic text-lg tracking-tight leading-none">{t('promoTitle')}</h2>
-                <p className={`text-[10px] font-black uppercase tracking-wider ${isDarkMode ? 'text-white' : 'text-slate-600'} leading-relaxed px-2 opacity-90`}>
+                <p className={isDarkMode ? "text-[10px] font-black uppercase tracking-wider text-white leading-relaxed px-2 opacity-90" : "text-[10px] font-black uppercase tracking-wider text-slate-600 leading-relaxed px-2 opacity-90"}>
                   {t('promoText')}
                 </p>
              </div>
           </div>
 
-          <div className={`p-6 rounded-[2.2rem] border-4 ${isDarkMode ? 'bg-zinc-900/80 border-zinc-800' : 'bg-slate-50 border-slate-200'} shadow-2xl backdrop-blur-xl`}>
+          <div className={isDarkMode ? "p-6 rounded-[2.2rem] border-4 bg-zinc-900/80 border-zinc-800 shadow-2xl backdrop-blur-xl" : "p-6 rounded-[2.2rem] border-4 bg-slate-50 border-slate-200 shadow-2xl backdrop-blur-xl"}>
             {authMode !== "recovery" ? (
               <>
-                <div className={`flex gap-3 border-b pb-3 mb-5 ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
+                <div className={isDarkMode ? "flex gap-3 border-b pb-3 mb-5 border-zinc-800" : "flex gap-3 border-b pb-3 mb-5 border-slate-200"}>
                   <button onClick={() => setAuthMode("login")} className={`flex-1 text-[11px] font-black uppercase italic transition-all ${authMode === "login" ? "text-amber-500" : (isDarkMode ? "text-zinc-600" : "text-slate-400")}`}>{t('login')}</button>
                   <button onClick={() => setAuthMode("register")} className={`flex-1 text-[11px] font-black uppercase italic transition-all ${authMode === "register" ? "text-amber-500" : (isDarkMode ? "text-zinc-600" : "text-slate-400")}`}>{t('register')}</button>
                 </div>
@@ -1422,11 +1422,11 @@ const App: React.FC = () => {
                   {authMode === "register" && (
                     <div className="flex flex-col items-center mb-4">
                       <div className="relative group">
-                        <div className={`w-20 h-20 rounded-full border-4 ${isDarkMode ? 'border-zinc-800 bg-zinc-900' : 'border-slate-200 bg-slate-50'} overflow-hidden flex items-center justify-center`}>
+                        <div className={isDarkMode ? "w-20 h-20 rounded-full border-4 border-zinc-800 bg-zinc-900 overflow-hidden flex items-center justify-center" : "w-20 h-20 rounded-full border-4 border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center"}>
                           {formData.profilePic ? (
                             <img src={formData.profilePic} className="w-full h-full object-cover" />
                           ) : (
-                            <User size={36} className={`${isDarkMode ? 'text-zinc-600' : 'text-slate-400'}`} />
+                            <User size={36} className={isDarkMode ? "text-zinc-600" : "text-slate-400"} />
                           )}
                         </div>
                         <label className="absolute bottom-0 right-0 bg-amber-500 p-2 rounded-full cursor-pointer shadow-lg active:scale-90 transition-all">
@@ -1438,59 +1438,59 @@ const App: React.FC = () => {
                     </div>
                   )}
 
-                  <div className={`flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 ${isDarkMode ? 'bg-black border-zinc-800' : 'bg-white border-slate-300'}`}>
+                  <div className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-black border-zinc-800" : "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-white border-slate-300"}>
                     <User size={16} className="text-amber-500 shrink-0" />
-                    <input required type="text" placeholder={t('username')} className={`bg-transparent outline-none w-full text-[10px] font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} placeholder-zinc-500`} value={formData.username} onChange={e => setFormData({...formData, username: handleTextFormat(e.target.value)})} />
+                    <input required type="text" placeholder={t('username')} className={isDarkMode ? "bg-transparent outline-none w-full text-[10px] font-black text-white placeholder-zinc-500" : "bg-transparent outline-none w-full text-[10px] font-black text-slate-900 placeholder-zinc-500"} value={formData.username} onChange={e => setFormData({...formData, username: handleTextFormat(e.target.value)})} />
                   </div>
 
-                  <div className={`flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 ${isDarkMode ? 'bg-black border-zinc-800' : 'bg-white border-slate-300'} relative`}>
+                  <div className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-black border-zinc-800 relative" : "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-white border-slate-300 relative"}>
                     <Lock size={16} className="text-amber-500 shrink-0" />
-                    <input required type={showPassword ? "text" : "password"} placeholder={t('password')} className={`bg-transparent outline-none w-full text-[10px] font-black uppercase ${isDarkMode ? 'text-white' : 'text-slate-900'} placeholder-zinc-500 pr-10`} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
+                    <input required type={showPassword ? "text" : "password"} placeholder={t('password')} className={isDarkMode ? "bg-transparent outline-none w-full text-[10px] font-black uppercase text-white placeholder-zinc-500 pr-10" : "bg-transparent outline-none w-full text-[10px] font-black uppercase text-slate-900 placeholder-zinc-500 pr-10"} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 text-zinc-600">{showPassword ? <EyeOff size={14} /> : <Eye size={14} />}</button>
                   </div>
 
                   {authMode === "register" && (
                     <>
-                      <div className={`flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 ${isDarkMode ? 'bg-black border-zinc-800' : 'bg-white border-slate-300'}`}>
+                      <div className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-black border-zinc-800" : "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-white border-slate-300"}>
                         <Flag size={16} className="text-amber-500 shrink-0" />
-                        <select required className={`bg-transparent outline-none w-full text-[10px] font-black uppercase ${isDarkMode ? 'text-white' : 'text-slate-900'} cursor-pointer`} value={formData.country} onChange={e => setFormData({...formData, country: e.target.value, phone: "", province: ""})}>
+                        <select required className={isDarkMode ? "bg-transparent outline-none w-full text-[10px] font-black uppercase text-white cursor-pointer" : "bg-transparent outline-none w-full text-[10px] font-black uppercase text-slate-900 cursor-pointer"} value={formData.country} onChange={e => setFormData({...formData, country: e.target.value, phone: "", province: ""})}>
                           <option value="" disabled className="text-zinc-500">{t('country').toUpperCase()}</option>
-                          {COUNTRY_DATA.map(c => <option key={c.name} value={c.name} className={`${isDarkMode ? 'bg-black text-white' : 'bg-white text-slate-900'}`}>{c.flag} {c.name}</option>)}
+                          {COUNTRY_DATA.map(c => <option key={c.name} value={c.name} className={isDarkMode ? "bg-black text-white" : "bg-white text-slate-900"}>{c.flag} {c.name}</option>)}
                         </select>
                       </div>
 
-                      <div className={`flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 ${isDarkMode ? 'bg-black border-zinc-800' : 'bg-white border-slate-300'}`}>
+                      <div className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-black border-zinc-800" : "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-white border-slate-300"}>
                         <Phone size={16} className="text-amber-500 shrink-0" />
                         <div className="flex items-center gap-2 w-full">
                           {selectedCountryCode && <span className="text-[10px] font-black text-amber-500">{selectedCountryCode}</span>}
-                          <input required type="tel" placeholder={t('phone').toUpperCase()} className={`bg-transparent outline-none w-full text-[10px] font-black uppercase ${isDarkMode ? 'text-white' : 'text-slate-900'} placeholder-zinc-500`} value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                          <input required type="tel" placeholder={t('phone').toUpperCase()} className={isDarkMode ? "bg-transparent outline-none w-full text-[10px] font-black uppercase text-white placeholder-zinc-500" : "bg-transparent outline-none w-full text-[10px] font-black uppercase text-slate-900 placeholder-zinc-500"} value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
-                        <div className={`flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 ${isDarkMode ? 'bg-black border-zinc-800' : 'bg-white border-slate-300'} overflow-hidden`}>
+                        <div className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-black border-zinc-800 overflow-hidden" : "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-white border-slate-300 overflow-hidden"}>
                           <MapPin size={16} className="text-amber-500 shrink-0" />
                           {selectedCountryObj && selectedCountryObj.provinces.length > 0 ? (
-                            <select required className={`bg-transparent outline-none w-full text-[10px] font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} cursor-pointer truncate`} value={formData.province} onChange={e => setFormData({...formData, province: e.target.value})}>
+                            <select required className={isDarkMode ? "bg-transparent outline-none w-full text-[10px] font-black text-white cursor-pointer truncate" : "bg-transparent outline-none w-full text-[10px] font-black text-slate-900 cursor-pointer truncate"} value={formData.province} onChange={e => setFormData({...formData, province: e.target.value})}>
                               <option value="" disabled className="text-zinc-500">{t('province').toUpperCase()}</option>
-                              {selectedCountryObj.provinces.map(p => <option key={p} value={p} className={`${isDarkMode ? 'bg-black text-white' : 'bg-white text-slate-900'}`}>{p}</option>)}
+                              {selectedCountryObj.provinces.map(p => <option key={p} value={p} className={isDarkMode ? "bg-black text-white" : "bg-white text-slate-900"}>{p}</option>)}
                             </select>
                           ) : (
-                            <input required type="text" placeholder={t('province').toUpperCase()} className={`bg-transparent outline-none w-full text-[10px] font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} placeholder-zinc-500`} value={formData.province} onChange={e => setFormData({...formData, province: handleTextFormat(e.target.value)})} />
+                            <input required type="text" placeholder={t('province').toUpperCase()} className={isDarkMode ? "bg-transparent outline-none w-full text-[10px] font-black text-white placeholder-zinc-500" : "bg-transparent outline-none w-full text-[10px] font-black text-slate-900 placeholder-zinc-500"} value={formData.province} onChange={e => setFormData({...formData, province: handleTextFormat(e.target.value)})} />
                           )}
                         </div>
-                        <div className={`flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 ${isDarkMode ? 'bg-black border-zinc-800' : 'bg-white border-slate-300'}`}>
+                        <div className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-black border-zinc-800" : "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-white border-slate-300"}>
                           <Calendar size={16} className="text-amber-500 shrink-0" />
-                          <select required className={`bg-transparent outline-none w-full text-[10px] font-black uppercase ${isDarkMode ? 'text-white' : 'text-slate-900'} cursor-pointer`} value={formData.age} onChange={e => setFormData({...formData, age: e.target.value})}>
+                          <select required className={isDarkMode ? "bg-transparent outline-none w-full text-[10px] font-black uppercase text-white cursor-pointer" : "bg-transparent outline-none w-full text-[10px] font-black uppercase text-slate-900 cursor-pointer"} value={formData.age} onChange={e => setFormData({...formData, age: e.target.value})}>
                             <option value="" disabled className="text-zinc-500">{t('age').toUpperCase()}</option>
-                            {ageOptions.map(a => <option key={a} value={a} className={`${isDarkMode ? 'bg-black text-white' : 'bg-white text-slate-900'}`}>{a}</option>)}
+                            {ageOptions.map(a => <option key={a} value={a} className={isDarkMode ? "bg-black text-white" : "bg-white text-slate-900"}>{a}</option>)}
                           </select>
                         </div>
                       </div>
 
-                      <div className={`flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 ${isDarkMode ? 'bg-black border-zinc-800' : 'bg-white border-slate-300'}`}>
+                      <div className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-black border-zinc-800" : "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-white border-slate-300"}>
                         <UserPlus size={16} className="text-amber-500 shrink-0" />
-                        <input type="text" placeholder={t('referralCode')} className={`bg-transparent outline-none w-full text-[10px] font-black uppercase ${isDarkMode ? 'text-white' : 'text-slate-900'} placeholder-zinc-500`} value={formData.referralCode} onChange={e => setFormData({...formData, referralCode: e.target.value.toUpperCase()})} />
+                        <input type="text" placeholder={t('referralCode')} className={isDarkMode ? "bg-transparent outline-none w-full text-[10px] font-black uppercase text-white placeholder-zinc-500" : "bg-transparent outline-none w-full text-[10px] font-black uppercase text-slate-900 placeholder-zinc-500"} value={formData.referralCode} onChange={e => setFormData({...formData, referralCode: e.target.value.toUpperCase()})} />
                       </div>
                     </>
                   )}
@@ -1501,61 +1501,61 @@ const App: React.FC = () => {
                 </form>
 
                 {authMode === "login" && (
-                  <button onClick={() => setAuthMode("recovery")} className={`w-full mt-4 text-[9px] font-black uppercase italic tracking-widest ${isDarkMode ? 'text-zinc-500' : 'text-slate-400'}`}>
+                  <button onClick={() => setAuthMode("recovery")} className={isDarkMode ? "w-full mt-4 text-[9px] font-black uppercase italic tracking-widest text-zinc-500" : "w-full mt-4 text-[9px] font-black uppercase italic tracking-widest text-slate-400"}>
                     {t('forgotPass')}
                   </button>
                 )}
               </>
             ) : (
               <div className="space-y-4 animate-in">
-                <button onClick={() => { setAuthMode("login"); setRecoveryStep("verify"); }} className={`flex items-center gap-2 text-[9px] font-black uppercase italic ${isDarkMode ? 'text-amber-500' : 'text-amber-600'}`}>
+                <button onClick={() => { setAuthMode("login"); setRecoveryStep("verify"); }} className={isDarkMode ? "flex items-center gap-2 text-[9px] font-black uppercase italic text-amber-500" : "flex items-center gap-2 text-[9px] font-black uppercase italic text-amber-600"}>
                    <ChevronLeft size={14} /> {t('returnToLogin')}
                 </button>
-                <h3 className={`text-sm font-black italic uppercase text-amber-500 tracking-tighter leading-none border-b-2 border-amber-500/20 pb-2`}>
+                <h3 className="text-sm font-black italic uppercase text-amber-500 tracking-tighter leading-none border-b-2 border-amber-500/20 pb-2">
                    {recoveryStep === "verify" ? t('verifyUser') : t('updatePass')}
                 </h3>
                 <form onSubmit={handleRecovery} className="space-y-3">
                   {recoveryStep === "verify" ? (
                     <>
-                      <div className={`flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 ${isDarkMode ? 'bg-black border-zinc-800' : 'bg-white border-slate-300'}`}>
+                      <div className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-black border-zinc-800" : "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-white border-slate-300"}>
                         <Flag size={16} className="text-amber-500 shrink-0" />
-                        <select required className={`bg-transparent outline-none w-full text-[10px] font-black uppercase ${isDarkMode ? 'text-white' : 'text-slate-900'} cursor-pointer`} value={formData.country} onChange={e => setFormData({...formData, country: e.target.value, phone: "", province: ""})}>
+                        <select required className={isDarkMode ? "bg-transparent outline-none w-full text-[10px] font-black uppercase text-white cursor-pointer" : "bg-transparent outline-none w-full text-[10px] font-black uppercase text-slate-900 cursor-pointer"} value={formData.country} onChange={e => setFormData({...formData, country: e.target.value, phone: "", province: ""})}>
                           <option value="" disabled className="text-zinc-500">{t('country').toUpperCase()}</option>
-                          {COUNTRY_DATA.map(c => <option key={c.name} value={c.name} className={`${isDarkMode ? 'bg-black text-white' : 'bg-white text-slate-900'}`}>{c.flag} {c.name}</option>)}
+                          {COUNTRY_DATA.map(c => <option key={c.name} value={c.name} className={isDarkMode ? "bg-black text-white" : "bg-white text-slate-900"}>{c.flag} {c.name}</option>)}
                         </select>
                       </div>
-                      <div className={`flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 ${isDarkMode ? 'bg-black border-zinc-800' : 'bg-white border-slate-300'}`}>
+                      <div className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-black border-zinc-800" : "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-white border-slate-300"}>
                         <MapPin size={16} className="text-amber-500 shrink-0" />
                         {selectedCountryObj && selectedCountryObj.provinces.length > 0 ? (
-                          <select required className={`bg-transparent outline-none w-full text-[10px] font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} cursor-pointer truncate`} value={formData.province} onChange={e => setFormData({...formData, province: e.target.value})}>
+                          <select required className={isDarkMode ? "bg-transparent outline-none w-full text-[10px] font-black text-white cursor-pointer truncate" : "bg-transparent outline-none w-full text-[10px] font-black text-slate-900 cursor-pointer truncate"} value={formData.province} onChange={e => setFormData({...formData, province: e.target.value})}>
                             <option value="" disabled className="text-zinc-500">{t('province').toUpperCase()}</option>
-                            {selectedCountryObj.provinces.map(p => <option key={p} value={p} className={`${isDarkMode ? 'bg-black text-white' : 'bg-white text-slate-900'}`}>{p}</option>)}
+                            {selectedCountryObj.provinces.map(p => <option key={p} value={p} className={isDarkMode ? "bg-black text-white" : "bg-white text-slate-900"}>{p}</option>)}
                           </select>
                         ) : (
-                          <input required type="text" placeholder={t('province').toUpperCase()} className={`bg-transparent outline-none w-full text-[10px] font-black ${isDarkMode ? 'text-white' : 'text-slate-900'} placeholder-zinc-500`} value={formData.province} onChange={e => setFormData({...formData, province: handleTextFormat(e.target.value)})} />
+                          <input required type="text" placeholder={t('province').toUpperCase()} className={isDarkMode ? "bg-transparent outline-none w-full text-[10px] font-black text-white placeholder-zinc-500" : "bg-transparent outline-none w-full text-[10px] font-black text-slate-900 placeholder-zinc-500"} value={formData.province} onChange={e => setFormData({...formData, province: handleTextFormat(e.target.value)})} />
                         )}
                       </div>
-                      <div className={`flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 ${isDarkMode ? 'bg-black border-zinc-800' : 'bg-white border-slate-300'}`}>
+                      <div className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-black border-zinc-800" : "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-white border-slate-300"}>
                         <Phone size={16} className="text-amber-500 shrink-0" />
                         <div className="flex items-center gap-2 w-full">
                           {selectedCountryCode && <span className="text-[10px] font-black text-amber-500">{selectedCountryCode}</span>}
-                          <input required type="tel" placeholder={t('phone').toUpperCase()} className={`bg-transparent outline-none w-full text-[10px] font-black uppercase ${isDarkMode ? 'text-white' : 'text-slate-900'} placeholder-zinc-500`} value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                          <input required type="tel" placeholder={t('phone').toUpperCase()} className={isDarkMode ? "bg-transparent outline-none w-full text-[10px] font-black uppercase text-white placeholder-zinc-500" : "bg-transparent outline-none w-full text-[10px] font-black uppercase text-slate-900 placeholder-zinc-500"} value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
                         </div>
                       </div>
                     </>
                   ) : (
                     <>
-                      <div className={`p-4 rounded-[1rem] border-2 border-amber-500/20 bg-amber-500/5`}>
+                      <div className={isDarkMode ? "p-4 rounded-[1rem] border-2 border-amber-500/20 bg-amber-500/5 text-white" : "p-4 rounded-[1rem] border-2 border-amber-500/20 bg-amber-50 text-slate-900"}>
                          <span className="text-[9px] font-black uppercase text-amber-500/60 block mb-1">{t('userFound')}</span>
-                         <span className={`text-[12px] font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{recoveredUser?.username}</span>
+                         <span className="text-[12px] font-black">{recoveredUser?.username}</span>
                       </div>
-                      <div className={`flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 ${isDarkMode ? 'bg-black border-zinc-800' : 'bg-white border-slate-300'} relative`}>
+                      <div className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-black border-zinc-800 relative" : "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-white border-slate-300 relative"}>
                         <Lock size={16} className="text-amber-500 shrink-0" />
-                        <input required type={showPassword ? "text" : "password"} placeholder={t('newPassword')} className={`bg-transparent outline-none w-full text-[10px] font-black uppercase ${isDarkMode ? 'text-white' : 'text-slate-900'} placeholder-zinc-500 pr-10`} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
+                        <input required type={showPassword ? "text" : "password"} placeholder={t('newPassword')} className={isDarkMode ? "bg-transparent outline-none w-full text-[10px] font-black uppercase text-white placeholder-zinc-500 pr-10" : "bg-transparent outline-none w-full text-[10px] font-black uppercase text-slate-900 placeholder-zinc-500 pr-10"} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
                       </div>
-                      <div className={`flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 ${isDarkMode ? 'bg-black border-zinc-800' : 'bg-white border-slate-300'} relative`}>
+                      <div className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-black border-zinc-800 relative" : "flex items-center gap-3 p-3.5 rounded-[1.2rem] border-2 bg-white border-slate-300 relative"}>
                         <Lock size={16} className="text-amber-500 shrink-0" />
-                        <input required type={showPassword ? "text" : "password"} placeholder={t('confirmPassword')} className={`bg-transparent outline-none w-full text-[10px] font-black uppercase ${isDarkMode ? 'text-white' : 'text-slate-900'} placeholder-zinc-500 pr-10`} value={formData.confirmPassword} onChange={e => setFormData({...formData, confirmPassword: e.target.value})} />
+                        <input required type={showPassword ? "text" : "password"} placeholder={t('confirmPassword')} className={isDarkMode ? "bg-transparent outline-none w-full text-[10px] font-black uppercase text-white placeholder-zinc-500 pr-10" : "bg-transparent outline-none w-full text-[10px] font-black uppercase text-slate-900 placeholder-zinc-500 pr-10"} value={formData.confirmPassword} onChange={e => setFormData({...formData, confirmPassword: e.target.value})} />
                         <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 text-zinc-600">{showPassword ? <EyeOff size={14} /> : <Eye size={14} />}</button>
                       </div>
                     </>
@@ -1585,23 +1585,23 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'bg-[#020617] text-white' : 'bg-white text-slate-900'} ${activeTab === 'chat' ? 'h-screen overflow-hidden pb-0' : 'pb-28'} transition-colors duration-300`}>
+    <div className={isDarkMode ? `min-h-screen bg-[#020617] text-white ${activeTab === 'chat' ? 'h-screen overflow-hidden pb-0' : 'pb-28'} transition-colors duration-300` : `min-h-screen bg-white text-slate-900 ${activeTab === 'chat' ? 'h-screen overflow-hidden pb-0' : 'pb-28'} transition-colors duration-300`}>
       {isSettingsOpen && (
         <div className="fixed inset-0 z-[60] flex animate-in">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={() => setIsSettingsOpen(false)} />
-          <div className={`relative ml-auto h-full w-[80%] max-w-sm p-6 flex flex-col shadow-2xl ${isDarkMode ? 'bg-[#020617] border-l-4 border-zinc-800' : 'bg-white border-l-4 border-slate-100'}`}>
+          <div className={isDarkMode ? "relative ml-auto h-full w-[80%] max-w-sm p-6 flex flex-col shadow-2xl bg-[#020617] border-l-4 border-zinc-800" : "relative ml-auto h-full w-[80%] max-w-sm p-6 flex flex-col shadow-2xl bg-white border-l-4 border-slate-100"}>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-black uppercase italic text-amber-500 tracking-tighter leading-none">{t('settings')}</h2>
-              <button onClick={() => setIsSettingsOpen(false)} className={`p-2.5 rounded-xl border-2 ${isDarkMode ? 'border-zinc-800 bg-zinc-900/40' : 'border-slate-200 bg-slate-50'} text-amber-500 active:scale-90 transition-all shadow-xl`}><X size={20}/></button>
+              <button onClick={() => setIsSettingsOpen(false)} className={isDarkMode ? "p-2.5 rounded-xl border-2 border-zinc-800 bg-zinc-900/40 text-amber-500 active:scale-90 transition-all shadow-xl" : "p-2.5 rounded-xl border-2 border-slate-200 bg-slate-50 text-amber-500 active:scale-90 transition-all shadow-xl"}><X size={20}/></button>
             </div>
             
             <div className="flex flex-col items-center mb-6 gap-2">
               <div className="relative group">
-                <div className={`w-24 h-24 rounded-full border-4 ${isDarkMode ? 'border-amber-500/30 bg-zinc-900' : 'border-amber-500/30 bg-slate-50'} overflow-hidden flex items-center justify-center shadow-2xl`}>
+                <div className={isDarkMode ? "w-24 h-24 rounded-full border-4 border-amber-500/30 bg-zinc-900 overflow-hidden flex items-center justify-center shadow-2xl" : "w-24 h-24 rounded-full border-4 border-amber-500/30 bg-slate-50 overflow-hidden flex items-center justify-center shadow-2xl"}>
                   {user.profilePic ? (
                     <img src={user.profilePic} className="w-full h-full object-cover" />
                   ) : (
-                    <User size={44} className={`${isDarkMode ? 'text-zinc-600' : 'text-slate-400'}`} />
+                    <User size={44} className={isDarkMode ? "text-zinc-600" : "text-slate-400"} />
                   )}
                 </div>
                 <label className="absolute bottom-1 right-1 bg-amber-500 p-2.5 rounded-full cursor-pointer shadow-xl active:scale-90 transition-all border-2 border-black">
@@ -1609,7 +1609,7 @@ const App: React.FC = () => {
                   <input type="file" accept="image/*" className="hidden" onChange={handleProfilePicChange} />
                 </label>
               </div>
-              <h3 className={`text-sm font-black italic uppercase ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{user.username}</h3>
+              <h3 className={isDarkMode ? "text-sm font-black italic uppercase text-white" : "text-sm font-black italic uppercase text-slate-900"}>{user.username}</h3>
             </div>
 
             <div className="flex-1 space-y-5 overflow-y-auto pr-1">
@@ -1620,12 +1620,12 @@ const App: React.FC = () => {
                    const next = langs[(langs.indexOf(lang) + 1) % langs.length];
                    setLang(next);
                    localStorage.setItem("dr_lang", next);
-                }} className={`flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 ${isDarkMode ? 'bg-zinc-800/20 border-zinc-800/40' : 'bg-slate-50 border-slate-200'}`}>
-                  <div className="flex items-center gap-3"><Globe size={18} className="text-amber-500" /> <span className={`text-[10px] font-black uppercase italic ${isDarkMode ? '' : 'text-slate-900'}`}>{t('lang')}</span></div>
+                }} className={isDarkMode ? "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40" : "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200"}>
+                  <div className="flex items-center gap-3"><Globe size={18} className="text-amber-500" /> <span className={isDarkMode ? "text-[10px] font-black uppercase italic" : "text-[10px] font-black uppercase italic text-slate-900"}>{t('lang')}</span></div>
                   <span className="text-[10px] font-black text-amber-500 uppercase">{lang}</span>
                 </button>
-                <button onClick={() => { setIsDarkMode(!isDarkMode); localStorage.setItem("dr_theme", !isDarkMode ? "dark" : "light"); }} className={`flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 ${isDarkMode ? 'bg-zinc-800/20 border-zinc-800/40' : 'bg-slate-50 border-slate-200'}`}>
-                  <div className="flex items-center gap-3">{isDarkMode ? <Sun size={18} className="text-amber-500" /> : <Moon size={18} className="text-amber-500" />} <span className={`text-[10px] font-black uppercase italic ${isDarkMode ? '' : 'text-slate-900'}`}>{t('theme')}</span></div>
+                <button onClick={() => { setIsDarkMode(!isDarkMode); localStorage.setItem("dr_theme", !isDarkMode ? "dark" : "light"); }} className={isDarkMode ? "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40" : "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200"}>
+                  <div className="flex items-center gap-3">{isDarkMode ? <Sun size={18} className="text-amber-500" /> : <Moon size={18} className="text-amber-500" />} <span className={isDarkMode ? "text-[10px] font-black uppercase italic" : "text-[10px] font-black uppercase italic text-slate-900"}>{t('theme')}</span></div>
                   <span className="text-[10px] font-black text-amber-500 uppercase">{isDarkMode ? 'ESCURO' : 'CLARO'}</span>
                 </button>
               </div>
@@ -1633,11 +1633,11 @@ const App: React.FC = () => {
               <div className="space-y-2">
                 <h3 className="text-[8px] font-black uppercase italic text-amber-500/60 tracking-[0.2em]">{t('referralTitle')}</h3>
                 {!user.referralCode ? (
-                  <button onClick={generateReferralCode} className={`flex items-center justify-center gap-3 w-full p-3.5 rounded-[1rem] border-2 bg-amber-500 text-black font-black uppercase italic text-[9px] shadow-lg active:scale-95 transition-all`}>
+                  <button onClick={generateReferralCode} className="flex items-center justify-center gap-3 w-full p-3.5 rounded-[1rem] border-2 bg-amber-500 text-black font-black uppercase italic text-[9px] shadow-lg active:scale-95 transition-all border-amber-400">
                     <UserPlus size={16} /> {t('generateReferral')}
                   </button>
                 ) : (
-                  <button onClick={() => setIsReferralPanelOpen(true)} className={`flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 ${isDarkMode ? 'bg-zinc-800/20 border-zinc-800/40' : 'bg-slate-50 border-slate-200'} font-black uppercase italic text-[9px]`}>
+                  <button onClick={() => setIsReferralPanelOpen(true)} className={isDarkMode ? "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40 font-black uppercase italic text-[9px]" : "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200 font-black uppercase italic text-[9px]"}>
                     <div className="flex items-center gap-3"><Users size={16} className="text-amber-500" /> {t('referralTitle')}</div>
                     <span className="text-[10px] font-black text-amber-500">{referrals.length}</span>
                   </button>
@@ -1647,7 +1647,7 @@ const App: React.FC = () => {
               <div className="space-y-2">
                 <h3 className="text-[8px] font-black uppercase italic text-amber-500/60 tracking-[0.2em]">STATUS</h3>
                 {hasVipAccess ? (
-                  <div className={`w-full p-4 rounded-[1rem] border-2 font-black uppercase italic text-[10px] flex flex-col items-center gap-1 shadow-md ${isDarkMode ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' : 'bg-amber-50 border-amber-200 text-amber-600'}`}>
+                  <div className={isDarkMode ? "w-full p-4 rounded-[1rem] border-2 font-black uppercase italic text-[10px] flex flex-col items-center gap-1 shadow-md bg-amber-500/10 border-amber-500/20 text-amber-500" : "w-full p-4 rounded-[1rem] border-2 font-black uppercase italic text-[10px] flex flex-col items-center gap-1 shadow-md bg-amber-50 border-amber-200 text-amber-600"}>
                     <div className="flex items-center gap-2"><Crown size={16} /> {t('vipStatus')}</div>
                     <span className="text-[9px] opacity-70 leading-none">{vipDaysRemaining} {t('daysRemaining')}</span>
                   </div>
@@ -1661,13 +1661,13 @@ const App: React.FC = () => {
               <div className="space-y-2">
                 <h3 className="text-[8px] font-black uppercase italic text-amber-500/60 tracking-[0.2em]">{t('community').toUpperCase()}</h3>
                 <div className="grid grid-cols-1 gap-1.5">
-                  <a href={appConfig.telegram} target="_blank" className={`flex items-center gap-3 p-3.5 rounded-[1rem] border-2 ${isDarkMode ? 'bg-zinc-800/20 border-zinc-800/40 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'} font-black uppercase italic text-[9px] transition-all active:scale-95`}><Send size={16} className="text-sky-500" /> TELEGRAM</a>
-                  <a href={appConfig.whatsapp} target="_blank" className={`flex items-center gap-3 p-3.5 rounded-[1rem] border-2 ${isDarkMode ? 'bg-zinc-800/20 border-zinc-800/40 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'} font-black uppercase italic text-[9px] transition-all active:scale-95`}><MessageCircle size={16} className="text-emerald-500" /> GRUPO WHATSAPP</a>
-                  <a href={appConfig.facebook} target="_blank" className={`flex items-center gap-3 p-3.5 rounded-[1rem] border-2 ${isDarkMode ? 'bg-zinc-800/20 border-zinc-800/40 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'} font-black uppercase italic text-[9px] transition-all active:scale-95`}><Facebook size={16} className="text-blue-600" /> FACEBOOK</a>
+                  <a href={appConfig.telegram} target="_blank" className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40 text-white font-black uppercase italic text-[9px] transition-all active:scale-95" : "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200 text-slate-900 font-black uppercase italic text-[9px] transition-all active:scale-95"}><Send size={16} className="text-sky-500" /> TELEGRAM</a>
+                  <a href={appConfig.whatsapp} target="_blank" className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40 text-white font-black uppercase italic text-[9px] transition-all active:scale-95" : "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200 text-slate-900 font-black uppercase italic text-[9px] transition-all active:scale-95"}><MessageCircle size={16} className="text-emerald-500" /> GRUPO WHATSAPP</a>
+                  <a href={appConfig.facebook} target="_blank" className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40 text-white font-black uppercase italic text-[9px] transition-all active:scale-95" : "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200 text-slate-900 font-black uppercase italic text-[9px] transition-all active:scale-95"}><Facebook size={16} className="text-blue-600" /> FACEBOOK</a>
                 </div>
               </div>
             </div>
-            <button onClick={handleLogout} className={`mt-6 flex items-center justify-center gap-3 p-4 rounded-[1.2rem] border-2 ${isDarkMode ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-red-50 border-red-100 text-red-600'} font-black uppercase italic active:scale-95 transition-all text-[10px]`}><LogOut size={18} /> {t('logout')}</button>
+            <button onClick={handleLogout} className={isDarkMode ? "mt-6 flex items-center justify-center gap-3 p-4 rounded-[1.2rem] border-2 bg-red-500/10 border-red-500/20 text-red-500 font-black uppercase italic active:scale-95 transition-all text-[10px]" : "mt-6 flex items-center justify-center gap-3 p-4 rounded-[1.2rem] border-2 bg-red-50 border-red-100 text-red-600 font-black uppercase italic active:scale-95 transition-all text-[10px]"}><LogOut size={18} /> {t('logout')}</button>
           </div>
         </div>
       )}
@@ -1676,10 +1676,10 @@ const App: React.FC = () => {
       {isReferralPanelOpen && (
         <div className="fixed inset-0 z-[70] flex animate-in">
           <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" onClick={() => setIsReferralPanelOpen(false)} />
-          <div className={`relative m-auto w-[90%] max-w-sm p-6 rounded-[2.5rem] border-4 shadow-2xl flex flex-col ${isDarkMode ? 'bg-[#020617] border-zinc-800' : 'bg-white border-slate-200'}`}>
+          <div className={isDarkMode ? "relative m-auto w-[90%] max-w-sm p-6 rounded-[2.5rem] border-4 shadow-2xl flex flex-col bg-[#020617] border-zinc-800" : "relative m-auto w-[90%] max-w-sm p-6 rounded-[2.5rem] border-4 shadow-2xl flex flex-col bg-white border-slate-200"}>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-black uppercase italic text-amber-500 tracking-tighter leading-none">{t('referralTitle')}</h2>
-              <button onClick={() => setIsReferralPanelOpen(false)} className={`p-2 rounded-xl border-2 ${isDarkMode ? 'border-zinc-800 text-amber-500' : 'border-slate-200 text-amber-500'} active:scale-90`}><X size={18}/></button>
+              <button onClick={() => setIsReferralPanelOpen(false)} className={isDarkMode ? "p-2 rounded-xl border-2 border-zinc-800 text-amber-500 active:scale-90" : "p-2 rounded-xl border-2 border-slate-200 text-amber-500 active:scale-90"}><X size={18}/></button>
             </div>
             <div className="space-y-4 overflow-y-auto max-h-[70vh] pr-1">
               <div className="p-4 rounded-2xl bg-amber-500 text-black text-center space-y-2 shadow-lg">
@@ -1691,11 +1691,11 @@ const App: React.FC = () => {
                 <p className="text-[9px] font-black uppercase leading-tight mt-2 opacity-80">{t('referralInfo')}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className={`p-3 rounded-2xl border-2 text-center ${isDarkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-slate-50 border-slate-200'}`}>
+                <div className={isDarkMode ? "p-3 rounded-2xl border-2 text-center bg-zinc-900 border-zinc-800" : "p-3 rounded-2xl border-2 text-center bg-slate-50 border-slate-200"}>
                    <span className="text-[8px] font-black text-zinc-500 uppercase block mb-1">{t('totalInvites')}</span>
                    <span className="text-xl font-black text-amber-500">{referrals.length}</span>
                 </div>
-                <div className={`p-3 rounded-2xl border-2 text-center ${isDarkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-slate-50 border-slate-200'}`}>
+                <div className={isDarkMode ? "p-3 rounded-2xl border-2 text-center bg-zinc-900 border-zinc-800" : "p-3 rounded-2xl border-2 text-center bg-slate-50 border-slate-200"}>
                    <span className="text-[8px] font-black text-zinc-500 uppercase block mb-1">{t('unclaimedInvites')}</span>
                    <span className="text-xl font-black text-emerald-500">{unclaimedInvitesCount}</span>
                 </div>
@@ -1711,7 +1711,7 @@ const App: React.FC = () => {
 
               <div className="space-y-2">
                 <span className="text-[10px] font-black uppercase italic text-amber-500 tracking-widest">{t('inviteList')}</span>
-                <div className={`max-h-48 overflow-y-auto rounded-2xl border-2 p-2 ${isDarkMode ? 'bg-black border-zinc-800' : 'bg-slate-50 border-slate-200'}`}>
+                <div className={isDarkMode ? "max-h-48 overflow-y-auto rounded-2xl border-2 p-2 bg-black border-zinc-800" : "max-h-48 overflow-y-auto rounded-2xl border-2 p-2 bg-slate-50 border-slate-200"}>
                   {referrals.length === 0 ? <p className="text-center py-10 text-[9px] uppercase font-black opacity-30">{t('noInvites')}</p> :
                     referrals.map((r, idx) => (
                       <div key={idx} className="flex justify-between items-center p-2 border-b last:border-0 border-zinc-800/20">
@@ -1727,26 +1727,21 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <header className={`sticky top-0 z-40 border-b-4 ${isDarkMode ? 'bg-[#020617] border-zinc-800' : 'bg-white border-slate-200'} px-5 py-3 shadow-lg`}>
-        <div className="flex justify-between items-center mb-2">
+      <header className={isDarkMode ? "sticky top-0 z-40 border-b-4 bg-[#020617] border-zinc-800 px-5 py-3 shadow-lg" : "sticky top-0 z-40 border-b-4 bg-white border-slate-200 px-5 py-3 shadow-lg"}>
+        <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl overflow-hidden border-2 border-amber-500 flex items-center justify-center bg-zinc-950 shadow-lg">
-              <img src={appConfig.logoUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'https://fermagna-bahgf-screenshot.webb'; }} />
+              <img src={appConfig.logoUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'https://i.ibb.co/xq4qVtZd/grok-image-lf8jcb.webp'; }} />
             </div>
             <div>
-              <h1 className={`text-lg font-black italic tracking-tighter uppercase leading-none ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>DR <span className="text-amber-500">PALPITES</span></h1>
+              <h1 className={isDarkMode ? "text-lg font-black italic tracking-tighter uppercase leading-none text-white" : "text-lg font-black italic tracking-tighter uppercase leading-none text-slate-900"}>DR <span className="text-amber-500">PALPITES</span></h1>
               <span className="text-[8px] font-black uppercase text-amber-500 block tracking-[0.15em] mt-1 opacity-100">{t('palpites').toUpperCase()}: {getFirebaseKey().split('-').reverse().join('/')}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setIsReferralPanelOpen(true)} className={`p-2.5 rounded-[1rem] border-2 ${isDarkMode ? 'border-zinc-800 bg-zinc-900/50' : 'border-slate-200 bg-white'} text-amber-500 active:scale-90 transition-all shadow-md`} title={t('referralTitle')}><UserPlus size={24} /></button>
-            <button onClick={() => setIsSettingsOpen(true)} className={`p-2.5 rounded-[1rem] border-2 ${isDarkMode ? 'border-zinc-800 bg-zinc-900/50' : 'border-slate-200 bg-white'} text-amber-500 active:scale-90 transition-all shadow-md`}><Menu size={24} /></button>
+            <button onClick={() => setIsReferralPanelOpen(true)} className={isDarkMode ? "p-2.5 rounded-[1rem] border-2 border-zinc-800 bg-zinc-900/50 text-amber-500 active:scale-90 transition-all shadow-md" : "p-2.5 rounded-[1rem] border-2 border-slate-200 bg-white text-amber-500 active:scale-90 transition-all shadow-md"} title={t('referralTitle')}><UserPlus size={24} /></button>
+            <button onClick={() => setIsSettingsOpen(true)} className={isDarkMode ? "p-2.5 rounded-[1rem] border-2 border-zinc-800 bg-zinc-900/50 text-amber-500 active:scale-90 transition-all shadow-md" : "p-2.5 rounded-[1rem] border-2 border-slate-200 bg-white text-amber-500 active:scale-90 transition-all shadow-md"}><Menu size={24} /></button>
           </div>
-        </div>
-        <div className={`flex items-center justify-center gap-6 py-1 border-t ${isDarkMode ? 'border-zinc-800' : 'border-slate-100'}`}>
-          <a href={appConfig.facebook} target="_blank" className="text-blue-600 active:scale-90 transition-all"><Facebook size={20} /></a>
-          <a href={appConfig.telegram} target="_blank" className="text-sky-500 active:scale-90 transition-all"><Send size={20} /></a>
-          <a href={`https://wa.me/${appConfig.support}`} target="_blank" className="text-emerald-500 active:scale-90 transition-all"><MessageCircle size={20} /></a>
         </div>
       </header>
 
@@ -1759,14 +1754,14 @@ const App: React.FC = () => {
         </a>
       )}
 
-      <main className={`max-w-md mx-auto p-4 ${activeTab === 'chat' ? (hasVipAccess ? 'h-[calc(100vh-140px)]' : 'h-[calc(100vh-180px)]') + ' flex flex-col space-y-0 overflow-hidden' : 'space-y-5'}`}>
+      <main className={activeTab === 'chat' ? (hasVipAccess ? "max-w-md mx-auto p-4 h-[calc(100vh-140px)] flex flex-col space-y-0 overflow-hidden" : "max-w-md mx-auto p-4 h-[calc(100vh-180px)] flex flex-col space-y-0 overflow-hidden") : "max-w-md mx-auto p-4 space-y-5"}>
         {activeTab === "hoje" && (
           <section className="space-y-5 animate-in">
             <div className="flex justify-between items-start px-1">
               <div className="space-y-1">
-                <span className={`text-[9px] font-black uppercase italic tracking-[0.2em] block ${isDarkMode ? 'text-zinc-500' : 'text-slate-400'}`}>{t('welcome')}</span>
+                <span className={isDarkMode ? "text-[9px] font-black uppercase italic tracking-[0.2em] block text-zinc-500" : "text-[9px] font-black uppercase italic tracking-[0.2em] block text-slate-400"}>{t('welcome')}</span>
                 <div className="flex flex-wrap items-center gap-3">
-                  <h2 className={`text-3xl font-black italic uppercase leading-none tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{user?.username}</h2>
+                  <h2 className={isDarkMode ? "text-3xl font-black italic uppercase leading-none tracking-tighter text-white" : "text-3xl font-black italic uppercase leading-none tracking-tighter text-slate-900"}>{user?.username}</h2>
                   {hasVipAccess && (
                     <div className="flex items-center gap-3">
                       <div className="bg-amber-500 text-black px-3 py-1.5 rounded-xl flex items-center gap-2 font-black italic text-[11px] shadow-lg">
@@ -1784,7 +1779,7 @@ const App: React.FC = () => {
             <AdSenseBanner isDarkMode={isDarkMode} />
 
             {loading ? <div className="py-40 flex justify-center"><RefreshCw className="animate-spin text-amber-500" size={40} /></div> : (
-              matches.length === 0 ? <div className={`py-32 text-center font-black uppercase italic tracking-widest text-lg ${isDarkMode ? 'text-zinc-800' : 'text-slate-300'}`}>{t('vazio')}</div> : 
+              matches.length === 0 ? <div className={isDarkMode ? "py-32 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-32 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('vazio')}</div> : 
               matches.map((m, i) => {
                 const isMatchVip = m.isVipMatch === true || (i < 5);
                 const isMatchUnlocked = hasVipAccess || unlockedMatches.includes(`${m.homeTeam}-${m.awayTeam}`);
@@ -1800,9 +1795,9 @@ const App: React.FC = () => {
                 const blockTitle = blockTitles[i % blockTitles.length];
 
                 return (
-                  <div key={i} className={`border-4 rounded-[2.5rem] overflow-hidden shadow-xl ${isDarkMode ? 'bg-zinc-900/60 border-zinc-800' : 'bg-white border-slate-200'}`}>
-                    <div className={`p-3.5 flex justify-between items-center text-[9px] font-black uppercase border-b-2 ${isDarkMode ? 'bg-black/60 border-zinc-800' : 'bg-slate-50 border-slate-100'}`}>
-                      <span className={`${isDarkMode ? 'text-white' : 'text-slate-600'} tracking-widest`}>
+                  <div key={i} className={isDarkMode ? "border-4 rounded-[2.5rem] overflow-hidden shadow-xl bg-zinc-900/60 border-zinc-800" : "border-4 rounded-[2.5rem] overflow-hidden shadow-xl bg-white border-slate-200"}>
+                    <div className={isDarkMode ? "p-3.5 flex justify-between items-center text-[9px] font-black uppercase border-b-2 bg-black/60 border-zinc-800" : "p-3.5 flex justify-between items-center text-[9px] font-black uppercase border-b-2 bg-slate-50 border-slate-100"}>
+                      <span className={isDarkMode ? "text-white tracking-widest" : "text-slate-600 tracking-widest"}>
                         {isMatchLocked ? "LIGA PREMIUM VIP" : m.league}
                       </span> 
                       {isMatchVip && <span className="bg-amber-500 text-black px-2 py-0.5 rounded flex items-center gap-1 text-[7px]"><Crown size={8}/> VIP</span>}
@@ -1812,18 +1807,18 @@ const App: React.FC = () => {
                       {isMatchLocked ? (
                         <div className="space-y-5 text-center">
                           {/* Blurred teams header */}
-                          <h3 className={`text-lg font-black uppercase italic tracking-tighter text-center mb-1 leading-tight filter blur-md select-none pointer-events-none opacity-25 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                          <h3 className={isDarkMode ? "text-lg font-black uppercase italic tracking-tighter text-center mb-1 leading-tight filter blur-md select-none pointer-events-none opacity-25 text-white" : "text-lg font-black uppercase italic tracking-tighter text-center mb-1 leading-tight filter blur-md select-none pointer-events-none opacity-25 text-slate-900"}>
                             {m.homeTeam.substring(0, Math.min(3, m.homeTeam.length))}***** <span className="text-[10px] text-amber-500/50 mx-2 font-black italic">vs</span> {m.awayTeam.substring(0, Math.min(3, m.awayTeam.length))}*****
                           </h3>
                           
                           {/* Interactive Block Screen */}
-                          <div className={`p-5 rounded-[2rem] border-4 ${isDarkMode ? 'bg-zinc-950/80 border-amber-500/20 shadow-inner' : 'bg-amber-500/5 border-amber-500/15'} space-y-4`}>
+                          <div className={isDarkMode ? "p-5 rounded-[2rem] border-4 bg-zinc-950/80 border-amber-500/20 shadow-inner space-y-4" : "p-5 rounded-[2rem] border-4 bg-amber-500/5 border-amber-500/15 space-y-4"}>
                             <div className="flex flex-col items-center gap-1">
                               <div className="bg-amber-500 p-3 rounded-full border-2 border-black shadow-lg animate-pulse">
                                 <LockKeyhole size={24} className="text-black" />
                               </div>
                               <span className="text-[10px] font-black uppercase tracking-widest text-amber-500 mt-2">{blockTitle}</span>
-                              <p className={`text-[11px] font-bold uppercase ${isDarkMode ? 'text-zinc-400' : 'text-slate-600'} px-2 leading-relaxed`}>
+                              <p className={isDarkMode ? "text-[11px] font-bold uppercase text-zinc-400 px-2 leading-relaxed" : "text-[11px] font-bold uppercase text-slate-600 px-2 leading-relaxed"}>
                                 Liberte as odds e as previsões científicas premium agora mesmo!
                               </p>
                             </div>
@@ -1838,7 +1833,7 @@ const App: React.FC = () => {
                               <a 
                                 href={appConfig.loja}
                                 target="_blank"
-                                className={`w-full py-4 rounded-xl border-2 text-[10px] font-black uppercase italic flex items-center justify-center gap-2 transition-all active:scale-95 ${isDarkMode ? 'bg-zinc-900 border-zinc-800 text-amber-500 hover:bg-zinc-800' : 'bg-white border-slate-300 text-slate-900 hover:bg-slate-50 shadow-md'}`}
+                                className={isDarkMode ? "w-full py-4 rounded-xl border-2 text-[10px] font-black uppercase italic flex items-center justify-center gap-2 transition-all active:scale-95 bg-zinc-900 border-zinc-800 text-amber-500 hover:bg-zinc-800" : "w-full py-4 rounded-xl border-2 text-[10px] font-black uppercase italic flex items-center justify-center gap-2 transition-all active:scale-95 bg-white border-slate-300 text-slate-900 hover:bg-slate-50 shadow-md"}
                               >
                                 <Crown size={14} className="text-amber-500" strokeWidth={3} /> TORNAR-SE MEMBRO VIP
                               </a>
@@ -1847,17 +1842,17 @@ const App: React.FC = () => {
                         </div>
                       ) : (
                         <>
-                          <h3 className={`text-lg font-black uppercase italic tracking-tighter text-center mb-5 leading-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{m.homeTeam} <span className="text-[10px] text-amber-500/50 mx-2 font-black italic">vs</span> {m.awayTeam}</h3>
+                          <h3 className={isDarkMode ? "text-lg font-black uppercase italic tracking-tighter text-center mb-5 leading-tight text-white" : "text-lg font-black uppercase italic tracking-tighter text-center mb-5 leading-tight text-slate-900"}>{m.homeTeam} <span className="text-[10px] text-amber-500/50 mx-2 font-black italic">vs</span> {m.awayTeam}</h3>
                           <div className="space-y-2">
                             {m.tips?.map((tip: any, idx: number) => {
                               const tipId = `${m.homeTeam}-${m.awayTeam}-${tip.market}-${tip.selection}`;
                               const isSelected = betSlip.some(s => s.id === tipId);
                               const selectionDisplay = cleanSelectionText(tip.market, tip.selection);
                               return (
-                                <button key={idx} onClick={() => handleToggleTip(m, tip)} className={`w-full p-4 rounded-[1.5rem] border-4 flex items-center justify-between transition-all active:scale-95 shadow-md ${isSelected ? 'bg-amber-500 border-amber-400 text-black shadow-lg' : (isDarkMode ? 'bg-black border-zinc-800' : 'bg-slate-50 border-slate-300')}`}>
+                                <button key={idx} onClick={() => handleToggleTip(m, tip)} className={isSelected ? "w-full p-4 rounded-[1.5rem] border-4 flex items-center justify-between transition-all active:scale-95 shadow-md bg-amber-500 border-amber-400 text-black shadow-lg" : (isDarkMode ? "w-full p-4 rounded-[1.5rem] border-4 flex items-center justify-between transition-all active:scale-95 shadow-md bg-black border-zinc-800" : "w-full p-4 rounded-[1.5rem] border-4 flex items-center justify-between transition-all active:scale-95 shadow-md bg-slate-50 border-slate-300")}>
                                     <div className="text-left leading-tight">
-                                      <span className={`text-[9px] font-black uppercase block mb-0.5 ${isSelected ? 'text-black/60' : 'text-zinc-500'}`}>{tip.market}</span>
-                                      <span className={`text-[12px] font-black uppercase italic tracking-tight ${isSelected ? 'text-black' : (isDarkMode ? 'text-white' : 'text-slate-900')}`}>{selectionDisplay}</span>
+                                      <span className={isSelected ? "text-[10px] font-black uppercase block mb-0.5 text-black/85" : (isDarkMode ? "text-[10px] font-black uppercase block mb-0.5 text-amber-400" : "text-[10px] font-black uppercase block mb-0.5 text-amber-600")}>{tip.market}</span>
+                                      <span className={isSelected ? "text-[12px] font-black uppercase italic tracking-tight text-black" : (isDarkMode ? "text-[12px] font-black uppercase italic tracking-tight text-white" : "text-[12px] font-black uppercase italic tracking-tight text-slate-900")}>{selectionDisplay}</span>
                                     </div>
                                     <span className="text-xl font-black italic tracking-tighter">@{parseFloat(tip.odds).toFixed(2)}</span>
                                 </button>
@@ -1871,7 +1866,7 @@ const App: React.FC = () => {
                 );
               })
             )}
-            <div className={`p-6 rounded-[2rem] border-4 text-center space-y-2 shadow-inner ${isDarkMode ? 'bg-zinc-900/40 border-zinc-800' : 'bg-slate-50 border-slate-200'}`}>
+            <div className={isDarkMode ? "p-6 rounded-[2rem] border-4 text-center space-y-2 shadow-inner bg-zinc-900/40 border-zinc-800" : "p-6 rounded-[2rem] border-4 text-center space-y-2 shadow-inner bg-slate-50 border-slate-200"}>
                <p className="text-[11px] font-black uppercase italic text-amber-500 tracking-wider">{t('footerInfo')}</p>
                <div className="flex justify-center gap-4 opacity-30">
                  <Globe size={16} /> <Flag size={16} /> <Crown size={16} />
@@ -1884,86 +1879,88 @@ const App: React.FC = () => {
           <section className="space-y-6 animate-in">
              <div className="flex items-center gap-3 px-2">
                <div className="bg-amber-500 p-2 rounded-xl shadow-md"><Layers size={20} className="text-black" /></div>
-               <h2 className={`text-lg font-black uppercase italic tracking-tighter drop-shadow-md ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t('fichas')}</h2>
+               <h2 className={isDarkMode ? "text-lg font-black uppercase italic tracking-tighter drop-shadow-md text-white" : "text-lg font-black uppercase italic tracking-tighter drop-shadow-md text-slate-900"}>{t('fichas')}</h2>
              </div>
 
              <AdSenseBanner isDarkMode={isDarkMode} />
 
              {loading ? <div className="py-40 flex justify-center"><RefreshCw className="animate-spin text-amber-500" size={40} /></div> : (
-               fichas.length === 0 ? <div className={`py-40 text-center font-black uppercase italic tracking-widest text-lg ${isDarkMode ? 'text-zinc-800' : 'text-slate-300'}`}>{t('vazio')}</div> : 
-               fichas.map((a, i) => {
-                 const isLocked = i > 0 && !hasVipAccess;
+               fichas.length === 0 ? <div className={isDarkMode ? "py-40 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-40 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('vazio')}</div> : 
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 {fichas.map((a, i) => {
+                   const isLocked = i > 0 && !hasVipAccess;
 
-                 if (isLocked) {
+                   if (isLocked) {
+                     return (
+                      <div key={i} className={isDarkMode ? "p-10 rounded-[3rem] border-4 flex flex-col items-center text-center space-y-6 shadow-2xl bg-zinc-900/80 border-zinc-800 backdrop-blur-xl" : "p-10 rounded-[3rem] border-4 flex flex-col items-center text-center space-y-6 shadow-2xl bg-slate-50 border-slate-200"}>
+                        <div className={isDarkMode ? "p-6 rounded-[2rem] border-4 relative shadow-xl bg-amber-500/10 border-amber-500/20" : "p-6 rounded-[2rem] border-4 relative shadow-xl bg-amber-50 border-amber-200"}>
+                          <LockKeyhole size={50} className="text-amber-500" />
+                          <Crown size={22} className="absolute -top-3 -right-3 text-amber-500 animate-bounce" />
+                        </div>
+                        <div className="space-y-3">
+                          <h3 className="text-xl font-black italic uppercase text-amber-500 leading-none tracking-tighter">{t('vipRestrictedTitle')}</h3>
+                          <p className={isDarkMode ? "text-[10px] font-black uppercase leading-relaxed italic px-2 text-white" : "text-[10px] font-black uppercase leading-relaxed italic px-2 text-slate-600"}>{t('vipRestrictedText')}</p>
+                        </div>
+                        <a href={`https://wa.me/${appConfig.support}?text=${encodeURIComponent(t('vipWhatsappMsg'))}`} target="_blank" className="w-full bg-emerald-500 text-black p-4 rounded-[1.5rem] font-black uppercase italic flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all text-[11px] tracking-tighter">
+                          <MessageCircle size={20} /> {t('talkToCeo')}
+                        </a>
+                      </div>
+                     );
+                   }
+
                    return (
-                    <div key={i} className={`p-10 rounded-[3rem] border-4 flex flex-col items-center text-center space-y-6 shadow-2xl ${isDarkMode ? 'bg-zinc-900/80 border-zinc-800 backdrop-blur-xl' : 'bg-slate-50 border-slate-200'}`}>
-                      <div className={`p-6 rounded-[2rem] border-4 relative shadow-xl ${isDarkMode ? 'bg-amber-500/10 border-amber-500/20' : 'bg-amber-50 border-amber-200'}`}>
-                        <LockKeyhole size={50} className="text-amber-500" />
-                        <Crown size={22} className="absolute -top-3 -right-3 text-amber-500 animate-bounce" />
-                      </div>
-                      <div className="space-y-3">
-                        <h3 className="text-xl font-black italic uppercase text-amber-500 leading-none tracking-tighter">{t('vipRestrictedTitle')}</h3>
-                        <p className={`text-[10px] font-black uppercase leading-relaxed italic px-2 ${isDarkMode ? 'text-white' : 'text-slate-600'}`}>{t('vipRestrictedText')}</p>
-                      </div>
-                      <a href={`https://wa.me/${appConfig.support}?text=${encodeURIComponent(t('vipWhatsappMsg'))}`} target="_blank" className="w-full bg-emerald-500 text-black p-4 rounded-[1.5rem] font-black uppercase italic flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all text-[11px] tracking-tighter">
-                        <MessageCircle size={20} /> {t('talkToCeo')}
-                      </a>
-                    </div>
-                   );
-                 }
-
-                 return (
-                   <div key={i} className={`p-1 rounded-[3rem] border-4 shadow-xl ${isDarkMode ? 'bg-zinc-900/60 border-zinc-800' : 'bg-white border-slate-200'} transition-all hover:scale-[1.02]`}>
-                      <div className="p-6 space-y-5">
-                         <div className="flex justify-between items-start">
-                           <div className="space-y-1 border-l-4 border-amber-500 pl-3">
-                             <h3 className="text-[10px] font-black italic uppercase text-amber-500 tracking-[0.1em] leading-none">{i === 0 && !hasVipAccess ? t('publicAccumulator') : (a.type || 'ELITE IA')}</h3>
-                             <span className={`text-[8px] font-black uppercase block tracking-widest leading-none ${isDarkMode ? 'text-white/50' : 'text-slate-400'}`}>{t('precisionAnalysis')}</span>
+                     <div key={i} className={isDarkMode ? "p-1 rounded-[3rem] border-4 shadow-xl bg-zinc-900/60 border-zinc-800 transition-all hover:scale-[1.02]" : "p-1 rounded-[3rem] border-4 shadow-xl bg-white border-slate-200 transition-all hover:scale-[1.02]"}>
+                        <div className="p-6 space-y-5">
+                           <div className="flex justify-between items-start">
+                             <div className="space-y-1 border-l-4 border-amber-500 pl-3">
+                               <h3 className="text-[10px] font-black italic uppercase text-amber-500 tracking-[0.1em] leading-none">{i === 0 && !hasVipAccess ? t('publicAccumulator') : (a.type || 'ELITE IA')}</h3>
+                               <span className={isDarkMode ? "text-[8px] font-black uppercase block tracking-widest leading-none text-white/50" : "text-[8px] font-black uppercase block tracking-widest leading-none text-slate-400"}>{t('precisionAnalysis')}</span>
+                             </div>
                            </div>
-                         </div>
-                         <div className={`grid grid-cols-2 gap-4 p-4 rounded-[1.5rem] border-2 ${isDarkMode ? 'bg-black/60 border-zinc-800/40' : 'bg-slate-50 border-slate-200'}`}>
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2"><span className="text-[9px] font-black text-amber-500 italic">💰</span> <span className={`text-[9px] font-black uppercase tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-700'}`}>{t('stake')}: {formatValueDisplay(a.stake || 0)}</span></div>
-                              <div className="flex items-center gap-2"><span className="text-[9px] font-black text-emerald-500 italic">⭐</span> <span className="text-[9px] font-black uppercase text-emerald-500 italic tracking-tighter leading-none">{t('totalWinnings')} : {formatValueDisplay(a.estimatedReturn || 0)}</span></div>
-                              <div className="flex items-center gap-2"><span className="text-[9px] font-black text-amber-500 italic">🚦</span> <span className="text-[9px] font-black uppercase text-amber-500 italic tracking-tighter leading-none">{a.assertiveness || '90'}% ASSERTIVO</span></div>
-                            </div>
-                            <div className={`flex flex-col items-end justify-center border-l-2 pl-3 ${isDarkMode ? 'border-zinc-800/50' : 'border-slate-200'}`}>
-                              <span className="text-[8px] font-black uppercase text-amber-500/50 block mb-1 tracking-widest leading-none">{t('totalOdds')}</span>
-                              <span className="text-3xl font-black italic text-amber-500 tracking-tighter leading-none">@{typeof a.totalOdds === 'number' ? a.totalOdds.toFixed(2) : parseFloat(String(a.totalOdds || 0)).toFixed(2)}</span>
-                            </div>
-                         </div>
-                         <div className="grid grid-cols-1 gap-2">
-                            {[
-                              { label: 'ELEPHANT BET', id: a.elephantBetId },
-                              { label: 'PREMIER BET', id: a.premierBetId },
-                              { label: 'BANTUBET', id: a.bantuBetId }
-                            ].map(bookie => bookie.id && (
-                              <div key={bookie.label} className={`flex items-center justify-between p-3 rounded-xl border-2 ${isDarkMode ? 'bg-zinc-800/40 border-zinc-700/50' : 'bg-slate-100 border-slate-200'}`}>
-                                <div className="flex flex-col">
-                                  <span className="text-[7px] font-black uppercase text-zinc-500">{bookie.label} ID</span>
-                                  <span className={`text-[11px] font-black italic ${isDarkMode ? 'text-white' : 'text-black'}`}>{bookie.id}</span>
+                           <div className={isDarkMode ? "grid grid-cols-2 gap-4 p-4 rounded-[1.5rem] border-2 bg-black/60 border-zinc-800/40" : "grid grid-cols-2 gap-4 p-4 rounded-[1.5rem] border-2 bg-slate-50 border-slate-200"}>
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2"><span className="text-[9px] font-black text-amber-500 italic">💰</span> <span className={isDarkMode ? "text-[9px] font-black uppercase tracking-tighter text-white" : "text-[9px] font-black uppercase tracking-tighter text-slate-700"}>{t('stake')}: {formatValueDisplay(a.stake || 0)}</span></div>
+                                <div className="flex items-center gap-2"><span className="text-[9px] font-black text-emerald-500 italic">⭐</span> <span className="text-[9px] font-black uppercase text-emerald-500 italic tracking-tighter leading-none">{t('totalWinnings')} : {formatValueDisplay(a.estimatedReturn || 0)}</span></div>
+                                <div className="flex items-center gap-2"><span className="text-[9px] font-black text-amber-500 italic">🚦</span> <span className="text-[9px] font-black uppercase text-amber-500 italic tracking-tighter leading-none">{a.assertiveness || '90'}% ASSERTIVO</span></div>
+                              </div>
+                              <div className={isDarkMode ? "flex flex-col items-end justify-center border-l-2 pl-3 border-zinc-800/50" : "flex flex-col items-end justify-center border-l-2 pl-3 border-slate-200"}>
+                                <span className="text-[8px] font-black uppercase text-amber-500/50 block mb-1 tracking-widest leading-none">{t('totalOdds')}</span>
+                                <span className="text-3xl font-black italic text-amber-500 tracking-tighter leading-none">@{typeof a.totalOdds === 'number' ? a.totalOdds.toFixed(2) : parseFloat(String(a.totalOdds || 0)).toFixed(2)}</span>
+                              </div>
+                           </div>
+                           <div className="grid grid-cols-1 gap-2">
+                              {[
+                                { label: 'ELEPHANT BET', id: a.elephantBetId },
+                                { label: 'PREMIER BET', id: a.premierBetId },
+                                { label: 'BANTUBET', id: a.bantuBetId }
+                              ].map(bookie => bookie.id && (
+                                <div key={bookie.label} className={isDarkMode ? "flex items-center justify-between p-3 rounded-xl border-2 bg-zinc-800/40 border-zinc-700/50" : "flex items-center justify-between p-3 rounded-xl border-2 bg-slate-100 border-slate-200"}>
+                                  <div className="flex flex-col">
+                                    <span className="text-[7px] font-black uppercase text-zinc-500">{bookie.label} ID</span>
+                                    <span className={isDarkMode ? "text-[11px] font-black italic text-white" : "text-[11px] font-black italic text-black"}>{bookie.id}</span>
+                                  </div>
+                                  <button onClick={() => copyToClipboard(bookie.id!)} className="p-2 bg-amber-500 text-black rounded-lg active:scale-90 transition-all"><ClipboardCheck size={16} /></button>
                                 </div>
-                                <button onClick={() => copyToClipboard(bookie.id!)} className="p-2 bg-amber-500 text-black rounded-lg active:scale-90 transition-all"><ClipboardCheck size={16} /></button>
-                              </div>
-                            ))}
-                         </div>
-                         <div className="space-y-4 pt-1">
-                            {a.selections.map((s, idx) => (
-                              <div key={idx} className={`space-y-1 relative pb-4 border-b-2 last:border-0 last:pb-0 ${isDarkMode ? 'border-zinc-800/40' : 'border-slate-100'}`}>
-                                 <h4 className={`text-[11px] font-black uppercase italic tracking-tighter leading-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{s.teams}</h4>
-                                 <div className="flex items-center gap-2">
-                                    <span className={`text-[10px] font-black uppercase italic tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-600'}`}>
-                                      {s.market}: <span className="text-amber-500">{cleanSelectionText(s.market, s.selection)}</span> 
-                                      <span className={`ml-2 text-[9px] ${isDarkMode ? 'text-white/50' : 'text-slate-400'}`}>@{parseFloat(s.odds || 0).toFixed(2)}</span>
-                                    </span>
-                                 </div>
-                              </div>
-                            ))}
-                         </div>
-                      </div>
-                   </div>
-                 );
-               })
+                              ))}
+                           </div>
+                           <div className="space-y-4 pt-1">
+                              {a.selections.map((s, idx) => (
+                                <div key={idx} className={isDarkMode ? "space-y-1 relative pb-4 border-b-2 last:border-0 last:pb-0 border-zinc-800/40" : "space-y-1 relative pb-4 border-b-2 last:border-0 last:pb-0 border-slate-100"}>
+                                   <h4 className={isDarkMode ? "text-[11px] font-black uppercase italic tracking-tighter leading-tight text-white" : "text-[11px] font-black uppercase italic tracking-tighter leading-tight text-slate-900"}>{s.teams}</h4>
+                                   <div className="flex items-center gap-2">
+                                      <span className={isDarkMode ? "text-[10px] font-black uppercase italic tracking-tighter text-white" : "text-[10px] font-black uppercase italic tracking-tighter text-slate-600"}>
+                                        {s.market}: <span className="text-amber-500">{cleanSelectionText(s.market, s.selection)}</span> 
+                                        <span className={isDarkMode ? "ml-2 text-[9px] text-white/50" : "ml-2 text-[9px] text-slate-400"}>@{parseFloat(s.odds || 0).toFixed(2)}</span>
+                                      </span>
+                                   </div>
+                                </div>
+                              ))}
+                           </div>
+                        </div>
+                     </div>
+                   );
+                 })}
+               </div>
              )}
           </section>
         )}
@@ -1973,9 +1970,9 @@ const App: React.FC = () => {
               <div className="flex flex-col gap-2 px-2">
                 <div className="flex items-center gap-3">
                   <div className="bg-emerald-500 p-2 rounded-xl shadow-md"><Trophy size={20} className="text-black" /></div>
-                  <h2 className={`text-lg font-black uppercase italic tracking-tighter drop-shadow-md ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t('historico')}</h2>
+                  <h2 className={isDarkMode ? "text-lg font-black uppercase italic tracking-tighter drop-shadow-md text-white" : "text-lg font-black uppercase italic tracking-tighter drop-shadow-md text-slate-900"}>{t('historico')}</h2>
                 </div>
-                <div className={`flex flex-wrap gap-x-4 gap-y-1 py-2 px-3 rounded-2xl border-2 ${isDarkMode ? 'bg-zinc-900/40 border-zinc-800 text-zinc-400' : 'bg-slate-50 border-slate-200 text-slate-500'}`}>
+                <div className={isDarkMode ? "flex flex-wrap gap-x-4 gap-y-1 py-2 px-3 rounded-2xl border-2 bg-zinc-900/40 border-zinc-800 text-zinc-400" : "flex flex-wrap gap-x-4 gap-y-1 py-2 px-3 rounded-2xl border-2 bg-slate-50 border-slate-200 text-slate-500"}>
                   <span className="text-[10px] font-black uppercase italic tracking-wider">
                     Total vitórias: <span className="text-emerald-500">{ganhos.length}</span>
                   </span>
@@ -1990,39 +1987,39 @@ const App: React.FC = () => {
               <AdSenseBanner isDarkMode={isDarkMode} />
 
              {loading ? <div className="py-40 flex justify-center"><RefreshCw className="animate-spin text-emerald-500" size={40} /></div> : (
-               ganhos.length === 0 ? <div className={`py-40 text-center font-black uppercase italic tracking-widest text-lg ${isDarkMode ? 'text-zinc-800' : 'text-slate-300'}`}>{t('historicoVazio')}</div> : 
+               ganhos.length === 0 ? <div className={isDarkMode ? "py-40 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-40 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('historicoVazio')}</div> : 
                ganhos.map((a, i) => (
-                 <div key={i} className={`p-1 rounded-[3rem] border-4 shadow-xl ${isDarkMode ? 'bg-zinc-900/60 border-zinc-800' : 'bg-white border-slate-200'} transition-all`}>
+                 <div key={i} className={isDarkMode ? "p-1 rounded-[3rem] border-4 shadow-xl bg-zinc-900/60 border-zinc-800 transition-all" : "p-1 rounded-[3rem] border-4 shadow-xl bg-white border-slate-200 transition-all"}>
                     <div className="p-6 space-y-5">
                        <div className="flex justify-between items-start">
                          <div className="space-y-1 border-l-4 border-emerald-500 pl-3">
-                           <h3 className="text-[10px] font-black italic uppercase text-emerald-500 tracking-[0.1em] font-black leading-none">{t('vitoriaIA')} - {a.type}</h3>
-                           <span className={`text-[8px] font-black uppercase block tracking-widest leading-none text-emerald-500/80`}>{t('resultadoGanho')}</span>
+                           <h3 className="text-[10px] font-black italic uppercase text-emerald-500 tracking-[0.1em] leading-none">{t('vitoriaIA')} - {a.type}</h3>
+                           <span className={isDarkMode ? "text-[8px] font-black uppercase block tracking-widest leading-none text-emerald-500/80" : "text-[8px] font-black uppercase block tracking-widest leading-none text-emerald-500/60"}>{t('resultadoGanho')}</span>
                          </div>
                          <span className="text-[8px] font-black text-zinc-500 uppercase italic">
                            {a.date ? formatDateLong(a.date) : (a.winCertifiedAt ? new Date(a.winCertifiedAt).toLocaleDateString('pt-AO') : "")}
                          </span>
                        </div>
-                       <div className={`grid grid-cols-2 gap-4 p-4 rounded-[1.5rem] border-2 border-emerald-500/20 ${isDarkMode ? 'bg-emerald-500/5' : 'bg-emerald-50'}`}>
+                       <div className={isDarkMode ? "grid grid-cols-2 gap-4 p-4 rounded-[1.5rem] border-2 border-emerald-500/20 bg-emerald-500/5" : "grid grid-cols-2 gap-4 p-4 rounded-[1.5rem] border-2 border-emerald-500/20 bg-emerald-50"}>
                           <div className="space-y-2">
-                            <div className="flex items-center gap-2"><span className="text-[9px] font-black text-emerald-500 italic">💰</span> <span className={`text-[9px] font-black uppercase tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-700'}`}>{t('stake')}: {formatValueDisplay(a.stake || 0)}</span></div>
+                            <div className="flex items-center gap-2"><span className="text-[9px] font-black text-emerald-500 italic">💰</span> <span className={isDarkMode ? "text-[9px] font-black uppercase tracking-tighter text-white" : "text-[9px] font-black uppercase tracking-tighter text-slate-700"}>{t('stake')}: {formatValueDisplay(a.stake || 0)}</span></div>
                             <div className="flex items-center gap-2"><span className="text-[9px] font-black text-emerald-500 italic">⭐</span> <span className="text-[9px] font-black uppercase text-emerald-500 italic tracking-tighter leading-none">{t('totalWinnings')} : {formatValueDisplay(a.estimatedReturn || 0)}</span></div>
                             <div className="flex items-center gap-2"><span className="text-[9px] font-black text-emerald-500 italic">🚦</span> <span className="text-[9px] font-black uppercase text-emerald-500 italic tracking-tighter leading-none">{a.assertiveness || '90'}% ASSERTIVO</span></div>
                           </div>
-                          <div className={`flex flex-col items-end justify-center border-l-2 pl-3 border-emerald-500/20`}>
+                          <div className={isDarkMode ? "flex flex-col items-end justify-center border-l-2 pl-3 border-emerald-500/20" : "flex flex-col items-end justify-center border-l-2 pl-3 border-emerald-500/10"}>
                             <span className="text-[8px] font-black uppercase text-emerald-500/50 block mb-1 tracking-widest leading-none">{t('totalOdds')}</span>
                             <span className="text-3xl font-black italic text-emerald-500 tracking-tighter leading-none">@{typeof a.totalOdds === 'number' ? a.totalOdds.toFixed(2) : parseFloat(String(a.totalOdds || 0)).toFixed(2)}</span>
                           </div>
                        </div>
                        <div className="space-y-4 pt-1">
                           {a.selections.map((s, idx) => (
-                            <div key={idx} className={`relative pb-4 border-b-2 last:border-0 last:pb-0 ${isDarkMode ? 'border-zinc-800/40' : 'border-slate-100'} flex justify-between items-center`}>
+                            <div key={idx} className={isDarkMode ? "relative pb-4 border-b-2 last:border-0 last:pb-0 border-zinc-800/40 flex justify-between items-center" : "relative pb-4 border-b-2 last:border-0 last:pb-0 border-slate-100 flex justify-between items-center"}>
                                <div className="space-y-1 flex-1 pr-4">
-                                 <h4 className={`text-[11px] font-black uppercase italic tracking-tighter leading-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{s.teams}</h4>
+                                 <h4 className={isDarkMode ? "text-[11px] font-black uppercase italic tracking-tighter leading-tight text-white" : "text-[11px] font-black uppercase italic tracking-tighter leading-tight text-slate-900"}>{s.teams}</h4>
                                  <div className="flex items-center gap-2">
-                                    <span className={`text-[10px] font-black uppercase italic tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-600'}`}>
+                                    <span className={isDarkMode ? "text-[10px] font-black uppercase italic tracking-tighter text-white" : "text-[10px] font-black uppercase italic tracking-tighter text-slate-600"}>
                                       {s.market}: <span className="text-emerald-500">{cleanSelectionText(s.market, s.selection)}</span> 
-                                      <span className={`ml-2 text-[9px] ${isDarkMode ? 'text-white/50' : 'text-slate-400'}`}>@{parseFloat(s.odds || 0).toFixed(2)}</span>
+                                      <span className={isDarkMode ? "ml-2 text-[9px] text-white/50" : "ml-2 text-[9px] text-slate-400"}>@{parseFloat(s.odds || 0).toFixed(2)}</span>
                                     </span>
                                  </div>
                                </div>
@@ -2044,23 +2041,23 @@ const App: React.FC = () => {
 
         {activeTab === "boletim" && (
           <section className="animate-in space-y-6 pb-20">
-            <h3 className={`text-xl font-black italic uppercase px-3 tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t('boletim').toUpperCase()}</h3>
+            <h3 className={isDarkMode ? "text-xl font-black italic uppercase px-3 tracking-tighter text-white" : "text-xl font-black italic uppercase px-3 tracking-tighter text-slate-900"}>{t('boletim').toUpperCase()}</h3>
             <AdSenseBanner isDarkMode={isDarkMode} />
-            {betSlip.length === 0 ? <div className={`py-40 text-center font-black uppercase italic tracking-widest text-lg ${isDarkMode ? 'text-zinc-800' : 'text-slate-300'}`}>{t('vazio')}</div> : 
+            {betSlip.length === 0 ? <div className={isDarkMode ? "py-40 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-40 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('vazio')}</div> : 
               <div className="space-y-4">
                 <div className="space-y-3">
                   {Object.entries(groupedBetSlip).map(([matchName, selections]: any) => (
-                    <div key={matchName} className={`p-5 rounded-[1.8rem] border-4 shadow-lg ${isDarkMode ? 'bg-zinc-900/60 border-zinc-800' : 'bg-white border-slate-200'}`}>
+                    <div key={matchName} className={isDarkMode ? "p-5 rounded-[1.8rem] border-4 shadow-lg bg-zinc-900/60 border-zinc-800" : "p-5 rounded-[1.8rem] border-4 shadow-lg bg-white border-slate-200"}>
                       <p className="text-[11px] font-black text-amber-500 uppercase italic mb-3 tracking-widest border-b-2 border-amber-500/10 pb-2">{matchName}</p>
                       <div className="space-y-3">
                         {selections.map((item: any) => (
                           <div key={item.id} className="flex justify-between items-center animate-in">
                              <div className="leading-tight">
-                                <p className={`font-black uppercase text-[10px] italic tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{item.market}: <span className="text-amber-500">{cleanSelectionText(item.market, item.selection)}</span></p>
+                                <p className={isDarkMode ? "font-black uppercase text-[10px] italic tracking-tighter text-white" : "font-black uppercase text-[10px] italic tracking-tighter text-slate-900"}>{item.market}: <span className="text-amber-500">{cleanSelectionText(item.market, item.selection)}</span></p>
                              </div>
                              <div className="flex items-center gap-3">
-                                <span className={`font-black text-lg italic tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>@{item.odds.toFixed(2)}</span>
-                                <button onClick={() => setBetSlip(prev => prev.filter(i => i.id !== item.id))} className={`p-1.5 rounded-lg active:scale-90 transition-all ${isDarkMode ? 'text-red-500' : 'text-red-600'}`}><Trash2 size={16} /></button>
+                                <span className={isDarkMode ? "font-black text-lg italic tracking-tighter text-white" : "font-black text-lg italic tracking-tighter text-slate-900"}>@{item.odds.toFixed(2)}</span>
+                                <button onClick={() => setBetSlip(prev => prev.filter(i => i.id !== item.id))} className={isDarkMode ? "p-1.5 rounded-lg active:scale-90 transition-all text-red-500" : "p-1.5 rounded-lg active:scale-90 transition-all text-red-600"}><Trash2 size={16} /></button>
                              </div>
                           </div>
                         ))}
@@ -2068,11 +2065,11 @@ const App: React.FC = () => {
                     </div>
                   ))}
                 </div>
-                <div className={`p-5 rounded-[1.8rem] border-4 shadow-lg ${isDarkMode ? 'bg-zinc-900/60 border-zinc-800' : 'bg-white border-slate-200'}`}>
+                <div className={isDarkMode ? "p-5 rounded-[1.8rem] border-4 shadow-lg bg-zinc-900/60 border-zinc-800" : "p-5 rounded-[1.8rem] border-4 shadow-lg bg-white border-slate-200"}>
                   <label className="text-[9px] font-black uppercase text-amber-500 block mb-2 tracking-widest">{t('stakeAmount')}</label>
                   <div className="flex items-center gap-3 bg-black/20 rounded-xl p-3 border-2 border-amber-500/30">
                     <DollarSign size={20} className="text-amber-500" />
-                    <input type="number" value={manualStake} onChange={(e) => setManualStake(e.target.value)} className={`bg-transparent outline-none w-full font-black text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`} placeholder="0" />
+                    <input type="number" value={manualStake} onChange={(e) => setManualStake(e.target.value)} className={isDarkMode ? "bg-transparent outline-none w-full font-black text-lg text-white" : "bg-transparent outline-none w-full font-black text-lg text-slate-900"} placeholder="0" />
                   </div>
                 </div>
                 <div className="mt-8 p-8 bg-amber-500 rounded-[2.5rem] text-black shadow-xl border-b-8 border-amber-600">
@@ -2100,30 +2097,30 @@ const App: React.FC = () => {
 
         {activeTab === "guardados" && (
           <section className="space-y-6 animate-in pb-20">
-             <h3 className={`text-xl font-black italic uppercase px-3 tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t('myTickets')}</h3>
+             <h3 className={isDarkMode ? "text-xl font-black italic uppercase px-3 tracking-tighter text-white" : "text-xl font-black italic uppercase px-3 tracking-tighter text-slate-900"}>{t('myTickets')}</h3>
              <AdSenseBanner isDarkMode={isDarkMode} />
-             {savedTickets.length === 0 ? <div className={`py-40 text-center font-black uppercase italic tracking-widest text-lg ${isDarkMode ? 'text-zinc-800' : 'text-slate-300'}`}>{t('vazio')}</div> : 
+             {savedTickets.length === 0 ? <div className={isDarkMode ? "py-40 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-40 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('vazio')}</div> : 
                savedTickets.map(tkt => (
-                 <div key={tkt.id} className={`p-6 border-4 rounded-[2.5rem] shadow-xl ${isDarkMode ? 'bg-zinc-900/60 border-zinc-800' : 'bg-white border-slate-200'} relative space-y-4`}>
+                 <div key={tkt.id} className={isDarkMode ? "p-6 border-4 rounded-[2.5rem] shadow-xl bg-zinc-900/60 border-zinc-800 relative space-y-4" : "p-6 border-4 rounded-[2.5rem] shadow-xl bg-white border-slate-200 relative space-y-4"}>
                     <div className="flex justify-between items-start">
-                      <div className={`flex items-center gap-2 ${isDarkMode ? 'text-white/50' : 'text-slate-400'}`}><Calendar size={16} /><span className="text-[9px] font-black uppercase italic tracking-widest">{tkt.date}</span></div>
-                      <button onClick={() => { const u = savedTickets.filter(t => t.id !== tkt.id); setSavedTickets(u); localStorage.setItem(`dr_tickets_${user?.uid || user?.username}`, JSON.stringify(u)); }} className={`p-2.5 rounded-xl border-2 active:scale-90 transition-all shadow-md ${isDarkMode ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-red-50 text-red-600 border-red-100'}`}><Trash2 size={18} /></button>
+                      <div className={isDarkMode ? "flex items-center gap-2 text-white/50" : "flex items-center gap-2 text-slate-400"}><Calendar size={16} /><span className="text-[9px] font-black uppercase italic tracking-widest">{tkt.date}</span></div>
+                      <button onClick={() => { const u = savedTickets.filter(t => t.id !== tkt.id); setSavedTickets(u); localStorage.setItem(`dr_tickets_${user?.uid || user?.username}`, JSON.stringify(u)); }} className={isDarkMode ? "p-2.5 rounded-xl border-2 active:scale-90 transition-all shadow-md bg-red-500/10 text-red-500 border-red-500/20" : "p-2.5 rounded-xl border-2 active:scale-90 transition-all shadow-md bg-red-50 text-red-600 border-red-100"}><Trash2 size={18} /></button>
                     </div>
-                    <div className={`p-4 rounded-xl space-y-3 ${isDarkMode ? 'bg-black/40' : 'bg-slate-50'}`}>
+                    <div className={isDarkMode ? "p-4 rounded-xl space-y-3 bg-black/40" : "p-4 rounded-xl space-y-3 bg-slate-50"}>
                       {tkt.items.map((it: any, idx: number) => (
-                        <div key={idx} className={`text-[10px] pb-2 border-b last:border-0 ${isDarkMode ? 'border-zinc-800' : 'border-slate-200'}`}>
+                        <div key={idx} className={isDarkMode ? "text-[10px] pb-2 border-b last:border-0 border-zinc-800" : "text-[10px] pb-2 border-b last:border-0 border-slate-200"}>
                           <p className="font-black text-amber-500 uppercase">{it.matchName}</p>
-                          <p className={`font-black opacity-80 ${isDarkMode ? 'text-white' : 'text-slate-700'}`}>{it.market}: {cleanSelectionText(it.market, it.selection)} @{parseFloat(it.odds).toFixed(2)}</p>
+                          <p className={isDarkMode ? "font-black opacity-80 text-white" : "font-black opacity-80 text-slate-700"}>{it.market}: {cleanSelectionText(it.market, it.selection)} @{parseFloat(it.odds).toFixed(2)}</p>
                         </div>
                       ))}
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                      <div className={`p-3 rounded-xl border-2 ${isDarkMode ? 'bg-amber-500/5 border-amber-500/20' : 'bg-amber-50 border-amber-100'}`}>
-                        <span className={`text-[8px] font-black uppercase block opacity-50 ${isDarkMode ? 'text-white' : 'text-slate-600'}`}>{t('stake').toUpperCase()}</span>
+                      <div className={isDarkMode ? "p-3 rounded-xl border-2 bg-amber-500/5 border-amber-500/20" : "p-3 rounded-xl border-2 bg-amber-50 border-amber-100"}>
+                        <span className={isDarkMode ? "text-[8px] font-black uppercase block opacity-50 text-white" : "text-[8px] font-black uppercase block opacity-50 text-slate-600"}>{t('stake').toUpperCase()}</span>
                         <span className="text-sm font-black text-amber-500">{tkt.stake || '0'} kz</span>
                       </div>
-                      <div className={`p-3 rounded-xl border-2 ${isDarkMode ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-emerald-50 border-emerald-100'}`}>
-                        <span className={`text-[8px] font-black uppercase block opacity-50 ${isDarkMode ? 'text-white' : 'text-slate-600'}`}>{t('totalWinnings').toUpperCase()}</span>
+                      <div className={isDarkMode ? "p-3 rounded-xl border-2 bg-emerald-500/5 border-emerald-500/20" : "p-3 rounded-xl border-2 bg-emerald-50 border-emerald-100"}>
+                        <span className={isDarkMode ? "text-[8px] font-black uppercase block opacity-50 text-white" : "text-[8px] font-black uppercase block opacity-50 text-slate-600"}>{t('totalWinnings').toUpperCase()}</span>
                         <span className="text-sm font-black text-emerald-500">{tkt.winnings || '0'}</span>
                       </div>
                     </div>
@@ -2135,11 +2132,11 @@ const App: React.FC = () => {
 
         {activeTab === "chat" && (
           <section className="animate-in flex flex-col h-full overflow-hidden">
-            <h3 className={`text-xl font-black italic uppercase px-3 tracking-tighter mb-4 shrink-0 leading-none ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t('chat')}</h3>
+            <h3 className={isDarkMode ? "text-xl font-black italic uppercase px-3 tracking-tighter mb-4 shrink-0 leading-none text-white" : "text-xl font-black italic uppercase px-3 tracking-tighter mb-4 shrink-0 leading-none text-slate-900"}>{t('chat')}</h3>
             <div className="shrink-0 px-2">
               <AdSenseBanner isDarkMode={isDarkMode} />
             </div>
-            <div className={`flex-1 overflow-y-auto p-5 space-y-5 rounded-[2.5rem] border-4 ${isDarkMode ? 'bg-zinc-900/60 border-zinc-800 shadow-inner shadow-black/40' : 'bg-slate-50 border-slate-200 shadow-inner'}`}>
+            <div className={isDarkMode ? "flex-1 overflow-y-auto p-5 space-y-5 rounded-[2.5rem] border-4 bg-zinc-900/60 border-zinc-800 shadow-inner shadow-black/40" : "flex-1 overflow-y-auto p-5 space-y-5 rounded-[2.5rem] border-4 bg-slate-50 border-slate-200 shadow-inner"}>
               {chatMessages.length === 0 ? <div className="text-center py-40 text-[10px] uppercase font-black opacity-30">{t('noMessages')}</div> :
                 chatMessages.map((msg, i) => {
                   const msgDate = new Date(msg.timestamp).toLocaleDateString('pt-AO');
@@ -2189,7 +2186,7 @@ const App: React.FC = () => {
                  onChange={e => setChatInput(e.target.value)} 
                  onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
                  placeholder={t('typeMessage')}
-                 className={`flex-1 p-5 rounded-[1.8rem] font-black text-[13px] border-4 focus:border-amber-500 transition-all ${isDarkMode ? 'bg-zinc-900 border-zinc-800 text-white' : 'bg-white border-slate-200 text-slate-900 shadow-md'}`} 
+                 className={isDarkMode ? "flex-1 p-5 rounded-[1.8rem] font-black text-[13px] border-4 focus:border-amber-500 transition-all bg-zinc-900 border-zinc-800 text-white" : "flex-1 p-5 rounded-[1.8rem] font-black text-[13px] border-4 focus:border-amber-500 transition-all bg-white border-slate-200 text-slate-900 shadow-md"} 
                />
                <button onClick={handleSendMessage} className="bg-amber-500 text-black px-6 rounded-[1.8rem] shadow-xl active:scale-90 transition-all flex items-center justify-center shrink-0"><Send size={28} /></button>
             </div>
@@ -2197,7 +2194,7 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <nav className={`fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[550px] p-2 rounded-[3.5rem] flex gap-1 z-50 border-4 shadow-2xl transition-all ${isDarkMode ? 'bg-amber-500 border-amber-600/50' : 'bg-black border-zinc-800'}`}>
+      <nav className={isDarkMode ? "fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[550px] p-2 rounded-[3.5rem] flex gap-1 z-50 border-4 shadow-2xl transition-all bg-amber-500 border-amber-600/50" : "fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-[550px] p-2 rounded-[3.5rem] flex gap-1 z-50 border-4 shadow-2xl transition-all bg-black border-zinc-800"}>
         {[
           { id: 'hoje', icon: LayoutDashboard, label: t('palpites') },
           { id: 'acumulador', icon: Layers, label: t('fichas') },
