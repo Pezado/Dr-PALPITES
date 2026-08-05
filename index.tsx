@@ -710,7 +710,7 @@ const App: React.FC = () => {
     whatsapp: "https://chat.whatsapp.com/CUCKC54B70KB1mziO1QwRy?mode=gi_t",
     facebook: "https://www.facebook.com/profile.php?id=100083556525090",
     support: "+244942607599",
-    logoUrl: "https://i.ibb.co/xq4qVtZd/grok-image-lf8jcb.webp",
+    logoUrl: "https://i.ibb.co/fYTYtmVp/IMG-20260714-WA0001-2.webp",
     loja: "https://fermagna.netlify.app/"
   });
   const [authMode, setAuthMode] = useState<"login" | "register" | "recovery">("login");
@@ -899,7 +899,7 @@ const App: React.FC = () => {
           whatsapp: "https://chat.whatsapp.com/CUCKC54B70KB1mziO1QwRy?mode=gi_t",
           facebook: "https://www.facebook.com/profile.php?id=100083556525090",
           support: "+244942607599",
-          logoUrl: "https://i.ibb.co/xq4qVtZd/grok-image-lf8jcb.webp",
+          logoUrl: "https://i.ibb.co/fYTYtmVp/IMG-20260714-WA0001-2.webp",
           loja: "https://fermagna.netlify.app/"
         }).catch(err => console.error("Error setting initial config:", err));
       }
@@ -1399,7 +1399,7 @@ const App: React.FC = () => {
         <div className="w-full max-w-md space-y-5 py-5 animate-in">
           <div className="text-center space-y-2">
              <div className="w-16 h-16 rounded-[1.8rem] mx-auto overflow-hidden shadow-[0_0_40px_rgba(245,158,11,0.25)] border-2 border-amber-500 flex items-center justify-center bg-zinc-950">
-               <img src={appConfig.logoUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'https://fermagna-bahgf-screenshot.webb'; }} />
+               <img src={appConfig.logoUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'https://i.ibb.co/fYTYtmVp/IMG-20260714-WA0001-2.webp'; }} />
              </div>
              <h1 className={isDarkMode ? "text-2xl font-black uppercase italic tracking-tighter text-white" : "text-2xl font-black uppercase italic tracking-tighter text-slate-900"}>DR <span className="text-amber-500">PALPITES</span></h1>
              <div className="space-y-1">
@@ -1731,7 +1731,7 @@ const App: React.FC = () => {
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl overflow-hidden border-2 border-amber-500 flex items-center justify-center bg-zinc-950 shadow-lg">
-              <img src={appConfig.logoUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'https://i.ibb.co/xq4qVtZd/grok-image-lf8jcb.webp'; }} />
+              <img src={appConfig.logoUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'https://i.ibb.co/fYTYtmVp/IMG-20260714-WA0001-2.webp'; }} />
             </div>
             <div>
               <h1 className={isDarkMode ? "text-lg font-black italic tracking-tighter uppercase leading-none text-white" : "text-lg font-black italic tracking-tighter uppercase leading-none text-slate-900"}>DR <span className="text-amber-500">PALPITES</span></h1>
