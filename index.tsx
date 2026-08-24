@@ -46,10 +46,7 @@ import {
   Trophy,
   History,
   Clock,
-  AlertTriangle,
-  FileText,
-  Download,
-  BookOpen
+  AlertTriangle
 } from "lucide-react";
 import { db } from "./firebase";
 import { 
@@ -654,30 +651,6 @@ const formatNumberWithDots = (num: number): string => {
   return Math.floor(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
 
-const AdSenseBanner = ({ isDarkMode, slot }: { isDarkMode: boolean; slot?: string }) => {
-  React.useEffect(() => {
-    try {
-      ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
-    } catch (e) {
-      console.warn("AdSense failed to load/render:", e);
-    }
-  }, []);
-
-  return (
-    <div className={isDarkMode ? "my-4 p-4 rounded-[1.8rem] border-4 flex flex-col items-center justify-center relative overflow-hidden shadow-md min-h-[90px] bg-zinc-900/40 border-zinc-800" : "my-4 p-4 rounded-[1.8rem] border-4 flex flex-col items-center justify-center relative overflow-hidden shadow-md min-h-[90px] bg-slate-50 border-slate-200"}>
-      <span className="absolute top-1.5 right-3 text-[7px] font-black tracking-widest text-zinc-500 uppercase italic">Anúncio Google</span>
-      <div className="w-full flex items-center justify-center min-h-[50px]">
-        <ins className="adsbygoogle"
-             style={{ display: 'block', width: '100%', minHeight: '50px' }}
-             data-ad-client="ca-pub-8959686518292972"
-             data-ad-slot={slot || "auto"}
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-      </div>
-    </div>
-  );
-};
-
 const getFirebaseKey = () => {
   const now = new Date();
   const year = now.getFullYear();
@@ -713,7 +686,7 @@ const App: React.FC = () => {
     whatsapp: "https://chat.whatsapp.com/CUCKC54B70KB1mziO1QwRy?mode=gi_t",
     facebook: "https://www.facebook.com/profile.php?id=100083556525090",
     support: "+244942607599",
-    logoUrl: "https://i.ibb.co/fYTYtmVp/IMG-20260714-WA0001-2.webp",
+    logoUrl: "https://i.ibb.co/xq4qVtZd/grok-image-lf8jcb.webp",
     loja: "https://fermagna.netlify.app/"
   });
   const [authMode, setAuthMode] = useState<"login" | "register" | "recovery">("login");
@@ -739,103 +712,6 @@ const App: React.FC = () => {
   const [chatInput, setChatInput] = useState("");
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
-
-  // --- AdSense Offerwall / Rewarded Video States ---
-  const [normalModeUnlockedUntil, setNormalModeUnlockedUntil] = useState<number>(() => {
-    return parseInt(localStorage.getItem("dr_normal_mode_unlocked_until") || "0", 10);
-  });
-  const [unlockedMatches, setUnlockedMatches] = useState<string[]>(() => {
-    try {
-      return JSON.parse(localStorage.getItem("dr_unlocked_matches") || "[]");
-    } catch {
-      return [];
-    }
-  });
-
-  // Ad player state machine
-  const [isAdPlaying, setIsAdPlaying] = useState(false);
-  const [adSecondsLeft, setAdSecondsLeft] = useState(5);
-  const [adTargetType, setAdTargetType] = useState<"normal" | "match" | null>(null);
-  const [adTargetMatchId, setAdTargetMatchId] = useState<string | null>(null);
-  const [adComplete, setAdComplete] = useState(false);
-  const [currentAdIndex, setCurrentAdIndex] = useState(0);
-  const [adMuted, setAdMuted] = useState(false);
-  const [showDocModal, setShowDocModal] = useState(false);
-
-  // Sync state to local storage
-  useEffect(() => {
-    localStorage.setItem("dr_normal_mode_unlocked_until", String(normalModeUnlockedUntil));
-  }, [normalModeUnlockedUntil]);
-
-  useEffect(() => {
-    localStorage.setItem("dr_unlocked_matches", JSON.stringify(unlockedMatches));
-  }, [unlockedMatches]);
-
-  const MOCK_ADS = [
-    {
-      title: "ELEPHANT BET ANGOLA",
-      subtitle: "Bónus de Boas-Vindas de até 300%!",
-      description: "Aposte nas melhores ligas com as maiores odds de Angola. Registe-se hoje mesmo e triplique o seu primeiro depósito para começar a ganhar prémios fantásticos!",
-      cta: "Registar Agora",
-      accentColor: "#f59e0b",
-      bgGradient: "from-amber-600 to-amber-950"
-    },
-    {
-      title: "PREMIER BET ANGOLA",
-      subtitle: "A Maior Casa de Apostas de África",
-      description: "Descubra a fantástica funcionalidade do 'Bolada Rápida' e receba os seus ganhos instantaneamente via Multicaixa Express. É simples, rápido e 100% seguro!",
-      cta: "Apostar na Premier",
-      accentColor: "#10b981",
-      bgGradient: "from-emerald-600 to-emerald-950"
-    },
-    {
-      title: "BANTUBET ANGOLA",
-      subtitle: "Odds Gigantes e Cashout Completo",
-      description: "Não espere o jogo terminar! Use o Cashout do BantuBet para garantir os seus lucros ou reduzir as suas perdas a qualquer momento da partida. Controle as suas apostas!",
-      cta: "Entrar no BantuBet",
-      accentColor: "#3b82f6",
-      bgGradient: "from-blue-600 to-blue-950"
-    }
-  ];
-
-  const startAdPlayback = (type: "normal" | "match", matchId?: string) => {
-    setAdTargetType(type);
-    setAdTargetMatchId(matchId || null);
-    setIsAdPlaying(true);
-    setAdSecondsLeft(5);
-    setAdComplete(false);
-    setCurrentAdIndex(Math.floor(Math.random() * MOCK_ADS.length));
-  };
-
-  useEffect(() => {
-    let timer: any;
-    if (isAdPlaying && adSecondsLeft > 0) {
-      timer = setInterval(() => {
-        setAdSecondsLeft(prev => prev - 1);
-      }, 1000);
-    } else if (isAdPlaying && adSecondsLeft === 0) {
-      setAdComplete(true);
-    }
-    return () => clearInterval(timer);
-  }, [isAdPlaying, adSecondsLeft]);
-
-  const handleClaimAdReward = () => {
-    if (adTargetType === "normal") {
-      const expiry = Date.now() + 24 * 60 * 60 * 1000;
-      setNormalModeUnlockedUntil(expiry);
-      addToast("Acesso completo desbloqueado por 24 horas!", "success");
-    } else if (adTargetType === "match" && adTargetMatchId) {
-      setUnlockedMatches(prev => {
-        if (prev.includes(adTargetMatchId)) return prev;
-        return [...prev, adTargetMatchId];
-      });
-      addToast("Palpite VIP desbloqueado com sucesso!", "success");
-    }
-    setIsAdPlaying(false);
-    setAdComplete(false);
-    setAdTargetType(null);
-    setAdTargetMatchId(null);
-  };
 
   const [formData, setFormData] = useState({
     username: "", country: "", customCountry: "", password: "", confirmPassword: "", phone: "", province: "", age: "", profilePic: "", referralCode: ""
@@ -865,10 +741,6 @@ const App: React.FC = () => {
     const isExpired = (user?.vipExpiry && user.vipExpiry > 0) ? Date.now() > user.vipExpiry : false;
     return isVip && !isExpired;
   }, [user]);
-
-  const isNormalModeUnlocked = useMemo(() => {
-    return hasVipAccess || (normalModeUnlockedUntil > Date.now());
-  }, [hasVipAccess, normalModeUnlockedUntil]);
 
   const vipDaysRemaining = useMemo(() => {
     if (!user?.vipExpiry) return 0;
@@ -903,7 +775,7 @@ const App: React.FC = () => {
           whatsapp: "https://chat.whatsapp.com/CUCKC54B70KB1mziO1QwRy?mode=gi_t",
           facebook: "https://www.facebook.com/profile.php?id=100083556525090",
           support: "+244942607599",
-          logoUrl: "https://i.ibb.co/fYTYtmVp/IMG-20260714-WA0001-2.webp",
+          logoUrl: "https://i.ibb.co/xq4qVtZd/grok-image-lf8jcb.webp",
           loja: "https://fermagna.netlify.app/"
         }).catch(err => console.error("Error setting initial config:", err));
       }
@@ -1403,7 +1275,7 @@ const App: React.FC = () => {
         <div className="w-full max-w-md space-y-5 py-5 animate-in">
           <div className="text-center space-y-2">
              <div className="w-16 h-16 rounded-[1.8rem] mx-auto overflow-hidden shadow-[0_0_40px_rgba(245,158,11,0.25)] border-2 border-amber-500 flex items-center justify-center bg-zinc-950">
-               <img src={appConfig.logoUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'https://i.ibb.co/fYTYtmVp/IMG-20260714-WA0001-2.webp'; }} />
+               <img src={appConfig.logoUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'https://i.ibb.co/xq4qVtZd/grok-image-lf8jcb.webp'; }} />
              </div>
              <h1 className={isDarkMode ? "text-2xl font-black uppercase italic tracking-tighter text-white" : "text-2xl font-black uppercase italic tracking-tighter text-slate-900"}>DR <span className="text-amber-500">PALPITES</span></h1>
              <div className="space-y-1">
@@ -1571,20 +1443,7 @@ const App: React.FC = () => {
               </div>
             )}
 
-            {/* PDF Technical Documentation Button */}
-            <div className="mt-5 pt-4 border-t border-zinc-800/60">
-              <button 
-                type="button"
-                onClick={() => setShowDocModal(true)}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-[1.2rem] bg-gradient-to-r from-amber-500/10 via-amber-500/20 to-amber-500/10 border-2 border-amber-500/40 text-amber-500 font-black text-[10px] uppercase italic tracking-wider hover:bg-amber-500/30 active:scale-95 transition-all shadow-lg"
-              >
-                <BookOpen size={16} className="text-amber-500 shrink-0" />
-                <span className="truncate">📘 DOCUMENTAÇÃO TÉCNICA / MANUAL (PDF)</span>
-                <Download size={14} className="text-amber-500 shrink-0" />
-              </button>
-            </div>
-
-            <div className="mt-8 border-t-2 border-zinc-500/10 pt-6 flex flex-col items-center gap-5">
+            <div className="mt-10 border-t-2 border-zinc-500/10 pt-6 flex flex-col items-center gap-5">
               <a href={`https://wa.me/${appConfig.support}`} target="_blank" className="flex items-center gap-2 text-[10px] font-black uppercase italic text-amber-500 bg-amber-500/5 px-4 py-2 rounded-full border border-amber-500/20 shadow-lg active:scale-95 transition-all">
                 <HelpCircle size={16} /> {t('needHelp')}
               </a>
@@ -1597,331 +1456,6 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {/* DOCUMENTATION & AUDIT PDF MODAL */}
-        {showDocModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in">
-            <div className="bg-zinc-950 border-2 border-amber-500/40 rounded-[2rem] max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-white">
-              {/* Modal Header */}
-              <div className="p-5 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/80">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 font-black">
-                    <FileText size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-xs font-black uppercase italic tracking-wider text-amber-500">Documentação Técnica & Manual</h3>
-                    <p className="text-[9px] text-zinc-400 font-semibold">Dr. PALPITES / TECNO-Trader — Engenharia & IA</p>
-                  </div>
-                </div>
-                <button onClick={() => setShowDocModal(false)} className="p-2 text-zinc-400 hover:text-white rounded-full bg-zinc-800">
-                  <X size={18} />
-                </button>
-              </div>
-
-              {/* Modal Body / Printable Content */}
-              <div id="printable-doc" className="p-6 overflow-y-auto space-y-8 text-[11px] leading-relaxed text-zinc-300">
-                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] flex items-center justify-between no-print">
-                  <div>
-                    <span className="font-black block uppercase">📘 E-BOOK MASTER: COMO CRIAR APPS COM INTELIGÊNCIA ARTIFICIAL (EDIÇÃO COMPLETA)</span>
-                    <span className="text-[9px] opacity-80">Guia Definitivo Consolidado • Sem marcas de água • Fundo Escuro Oficial • Pronto para Salvar em PDF</span>
-                  </div>
-                  <button 
-                    onClick={() => window.print()}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-amber-500 text-black font-black uppercase text-[10px] rounded-lg shadow-lg hover:bg-amber-400 active:scale-95 transition-all"
-                  >
-                    <Download size={14} /> Salvar PDF Oficial
-                  </button>
-                </div>
-
-                {/* CAPA OFICIAL (SLIDE 1 & 2) */}
-                <div className="page-card text-center p-8 rounded-3xl bg-zinc-900/90 border-2 border-amber-500/40 space-y-4">
-                  <div className="inline-block px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 text-[10px] font-black tracking-widest uppercase">
-                    GUIA COMPLETO • SEM CÓDIGO • COM INTELIGÊNCIA ARTIFICIAL
-                  </div>
-                  <h1 className="text-2xl sm:text-3xl font-black text-white uppercase italic tracking-tight">
-                    COMO CRIAR APPS COM <span className="text-amber-500">INTELIGÊNCIA ARTIFICIAL</span>
-                  </h1>
-                  <p className="text-xs text-zinc-300 max-w-xl mx-auto leading-relaxed">
-                    Nos dias de hoje, a tecnologia está a transformar radicalmente todos os sectores da nossa vida. Qualquer pessoa — mesmo sem qualquer conhecimento prévio de programação — pode agora criar aplicativos impressionantes com apenas uma ideia e algumas palavras. Bem-vindo ao futuro do desenvolvimento de software.
-                  </p>
-                  <div className="pt-2 text-[9px] text-zinc-400 font-bold uppercase tracking-widest">
-                    Edição Master Oficial • Caso Real: Dr. PALPITES (Motor Tecno-Trader)
-                  </div>
-                </div>
-
-                {/* ÍNDICE COMPLETO (SLIDE 3) */}
-                <div className="page-card p-6 rounded-2xl bg-zinc-900/70 border border-zinc-800 space-y-4">
-                  <h2 className="text-sm font-black text-amber-500 uppercase tracking-wide border-b border-zinc-800 pb-2">
-                    📑 ÍNDICE: A JORNADA COMPLETA
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[10px]">
-                    <div className="space-y-1.5">
-                      <p className="text-amber-400 font-black uppercase">01. PARTE I — O COMEÇO & A REVOLUÇÃO</p>
-                      <ul className="list-disc pl-4 text-zinc-400 space-y-0.5">
-                        <li>Como Criar Apps com IA</li>
-                        <li>A Revolução da IA em Todos os Sectores</li>
-                        <li>A Minha História: Como Aprendi a Programar aos 19 Anos</li>
-                        <li>Qualidades que Todo Dev com IA Deve Ter</li>
-                      </ul>
-                    </div>
-                    <div className="space-y-1.5">
-                      <p className="text-amber-400 font-black uppercase">02. PARTE II — ENTENDENDO AS FERRAMENTAS</p>
-                      <ul className="list-disc pl-4 text-zinc-400 space-y-0.5">
-                        <li>Google AI Studio (Recomendado) vs Lovable vs Replit</li>
-                        <li>Por que o Google AI Studio é Superior</li>
-                      </ul>
-                    </div>
-                    <div className="space-y-1.5">
-                      <p className="text-amber-400 font-black uppercase">03. PARTE III — DOMINANDO OS PROMPTS</p>
-                      <ul className="list-disc pl-4 text-zinc-400 space-y-0.5">
-                        <li>A Arte do Prompt Perfeito & Anatomia de 14 Elementos</li>
-                        <li>O Prompt Mestre: Template Profissional de 18 Seções</li>
-                        <li>Do Pensamento para a Aplicação (O Guia Passo a Passo)</li>
-                        <li>A Primeira Geração: Analisando Resultados com Olhar Crítico</li>
-                      </ul>
-                    </div>
-                    <div className="space-y-1.5">
-                      <p className="text-amber-400 font-black uppercase">04. PARTE IV — CONSTRUÇÃO, BANCO & DEPLOY</p>
-                      <ul className="list-disc pl-4 text-zinc-400 space-y-0.5">
-                        <li>Firebase: Backend em Tempo Real (Como Criar Passo a Passo)</li>
-                        <li>GitHub: Versionamento Seguro & Conexão no AI Studio</li>
-                        <li>Netlify & Vercel: Hospedagem Profissional & O Segredo do _redirects</li>
-                        <li>UI/UX de Luxo: Eliminando Textos Técnicos & Modo Escuro/Claro</li>
-                      </ul>
-                    </div>
-                    <div className="space-y-1.5 sm:col-span-2">
-                      <p className="text-amber-400 font-black uppercase">05. PARTE V & VI — MONETIZAÇÃO & PROJETO REAL (MÉTODO TECNO)</p>
-                      <ul className="list-disc pl-4 text-zinc-400 space-y-0.5">
-                        <li>Google AdSense: Script Oficial, Arquivo ads.txt & Offerwall 24 Horas</li>
-                        <li>Projeto Completo: Da Ideia à Publicação & Checklist Final</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                {/* HISTÓRIA E MENTALIDADE (SLIDE 4 & 5) */}
-                <div className="page-card p-6 rounded-2xl bg-zinc-900/70 border border-zinc-800 space-y-4">
-                  <h2 className="text-sm font-black text-amber-500 uppercase tracking-wide border-b border-zinc-800 pb-2">
-                    📖 A MINHA HISTÓRIA & AS QUALIDADES QUE TODO DEV DEVE TER
-                  </h2>
-                  <p className="text-zinc-300">
-                    É engraçado a maneira como me tornei um Dev. Foi em <strong>Novembro de 2024, com apenas 19 anos</strong>. Eu não sabia o que queria fazer da vida. De repente, fui adicionado a um grupo de vendas de bot do Aviator. O administrador era programador e tinha o seu próprio aplicativo. Pensei: <em>"Não quero apenas ter acesso àquele bot como jogador — quero criar o meu próprio aplicativo."</em> Nem fazia ideia de como funcionava, nem sequer sabia se era possível fazer isso pelo celular.
-                  </p>
-                  <p className="text-zinc-300">
-                    Comecei a conversar com o ChatGPT e perguntei: <em>"Como posso instalar?"</em>. A resposta foi simples: <em>"Baixa o aplicativo HTML Editor."</em> Segui cada passo com atenção. Aquele primeiro protótipo, mesmo simples, foi o ponto de viragem. Percebi que não precisava de anos de estudo universitário para criar algo real: precisava de uma ideia clara, de uma ferramenta de IA e de persistência diária.
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                    <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
-                      <strong className="text-amber-400 block text-xs">1. Paciência</strong>
-                      <span className="text-[10px] text-zinc-400">Água mole em pedra dura tanto bate até que fura. A IA nem sempre acerta de primeira — a persistência é o que separa quem vence de quem desiste.</span>
-                    </div>
-                    <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
-                      <strong className="text-amber-400 block text-xs">2. Foco e Fé</strong>
-                      <span className="text-[10px] text-zinc-400">Quando dizes "eu vou conseguir", fazes o impossível tornar-se real. O foco mantém-te no caminho quando surgem erros.</span>
-                    </div>
-                    <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
-                      <strong className="text-amber-400 block text-xs">3. Humildade Tecnológica</strong>
-                      <span className="text-[10px] text-zinc-400">Cada explicação da IA é uma aula sumariada. Pergunta sempre "por quê?" e "como funciona?", substituindo o tempo perdido no TikTok pelo estudo prático.</span>
-                    </div>
-                    <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
-                      <strong className="text-amber-400 block text-xs">4. Disposição</strong>
-                      <span className="text-[10px] text-zinc-400">"Enquanto eu não conseguir, não vou parar." Seja em casa, na escola ou no transporte, qualquer momento é oportunidade de criar.</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* REVOLUÇÃO & FERRAMENTAS (SLIDE 6 & 7) */}
-                <div className="page-card p-6 rounded-2xl bg-zinc-900/70 border border-zinc-800 space-y-4">
-                  <h2 className="text-sm font-black text-amber-500 uppercase tracking-wide border-b border-zinc-800 pb-2">
-                    ⚡ A REVOLUÇÃO DA IA & POR QUE O GOOGLE AI STUDIO É A ESCOLHA NÚMERO 1
-                  </h2>
-                  <p className="text-zinc-300">
-                    A IA redefiniu a comunicação, o entretenimento, a música e agora a criação de software. Hoje, até um jovem sem conhecimento técnico prévio consegue criar sistemas completos apenas com instruções em português estruturado.
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[10px]">
-                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/40">
-                      <strong className="text-amber-400 block text-xs font-black">⭐ Google AI Studio (Recomendado)</strong>
-                      <p className="text-zinc-300 mt-1">
-                        Destaca-se pela qualidade superior do código, integração nativa com o ecossistema Google (Firebase, Gemini Models), suporte completo a TypeScript/React e facilidade de exportação para o GitHub. É a ferramenta que permite sair do protótipo simples para a escala profissional.
-                      </p>
-                    </div>
-                    <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
-                      <strong className="text-zinc-300 block text-xs font-black">Alternativas: Lovable, Replit, Create XYZ</strong>
-                      <p className="text-zinc-400 mt-1">
-                        O Lovable é ótimo para interfaces rápidas, o Replit oferece terminal em nuvem e ferramentas como Create XYZ e Base44 oferecem abordagens simplificadas, mas com menor flexibilidade em projetos de banco de dados robustos.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ENGENHARIA DE PROMPTS & TEMPLATE MESTRE (SLIDE 8, 9, 10, 11 & 12) */}
-                <div className="page-card p-6 rounded-2xl bg-zinc-900/70 border border-zinc-800 space-y-4">
-                  <h2 className="text-sm font-black text-amber-500 uppercase tracking-wide border-b border-zinc-800 pb-2">
-                    🎯 A ARTE DO PROMPT MESTRE & OS 18 ELEMENTOS ESSENCIAIS
-                  </h2>
-                  <p className="text-zinc-300">
-                    Um prompt mal construído gera aplicativos quebrados, amadores ou genéricos. Um <strong>Prompt Mestre</strong> é como uma receita detalhada de engenharia.
-                  </p>
-                  <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2 text-[10px]">
-                    <span className="text-amber-400 font-bold uppercase block">As 18 Seções do Template Profissional Reutilizável:</span>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-zinc-300">
-                      <div>1. Identidade do Projeto</div>
-                      <div>2. Objetivo Principal</div>
-                      <div>3. Público-Alvo</div>
-                      <div>4. Funcionalidades Chave</div>
-                      <div>5. Telas & Páginas</div>
-                      <div>6. Design & UI/UX</div>
-                      <div>7. Paleta de Cores</div>
-                      <div>8. Navegação & Fluxo</div>
-                      <div>9. Estrutura de Banco</div>
-                      <div>10. Autenticação</div>
-                      <div>11. Regras de Negócio</div>
-                      <div>12. Segurança & Acesso</div>
-                      <div>13. Tecnologias</div>
-                      <div>14. Responsividade Mobile</div>
-                      <div>15. Tratamento de Erros</div>
-                      <div>16. Requisitos Técnicos</div>
-                      <div>17. Restrições</div>
-                      <div>18. Critérios de Aceitação</div>
-                    </div>
-                  </div>
-                  <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-[10px]">
-                    <strong className="text-emerald-400 block font-bold">✅ Exemplo do Prompt Bom vs ❌ Prompt Ruim:</strong>
-                    <p className="text-zinc-300 mt-1">
-                      <strong>❌ Ruim:</strong> <em>"Cria um app de vendas aí."</em> (Vago, sem cores, sem regras).<br/>
-                      <strong>✅ Bom:</strong> <em>"Cria um app esportivo chamado 'Dr. PALPITES' com fundo #020617, botões em âmbar #f59e0b e verde #10b981. Deve conter tela de login com Firebase, lista de bilhetes com odds, botão de copiar código em 1 clique para Elephant Bet/Premier Bet, e suporte via WhatsApp."</em>
-                    </p>
-                  </div>
-                </div>
-
-                {/* TUTORIAL PASSO A PASSO DO FIREBASE (SLIDE 13 & 16) */}
-                <div className="page-card p-6 rounded-2xl bg-zinc-900/70 border border-zinc-800 space-y-4">
-                  <h2 className="text-sm font-black text-amber-500 uppercase tracking-wide border-b border-zinc-800 pb-2">
-                    🗄️ GUIA PASSO A PASSO: CRIANDO SEU BANCO NO FIREBASE DO GOOGLE
-                  </h2>
-                  <p className="text-zinc-300">
-                    O Firebase é a infraestrutura em nuvem oficial da Google. Ele armazena os dados dos usuários, autentica logins e sincroniza tudo em tempo real.
-                  </p>
-                  <ol className="list-decimal pl-5 space-y-2 text-[10px] text-zinc-300">
-                    <li><strong>Pesquisa no Google:</strong> Digita <em>"Firebase Console"</em> e acessa <code>firebase.google.com</code> com seu Gmail.</li>
-                    <li><strong>Criação do Projeto:</strong> Clica em <em>"+ Adicionar Projeto"</em>, digita o nome (Ex: <code>dr-palpites</code>) e desativa o Google Analytics para simplificar.</li>
-                    <li><strong>Ativação do Realtime Database:</strong> No menu lateral esquerdo, clica em <em>Compilação &gt; Realtime Database &gt; Criar banco de dados</em>.</li>
-                    <li><strong>Regras em Modo de Teste:</strong> Escolhe <em>"Iniciar em modo de teste"</em> e clica em Ativar para liberar leitura e escrita.</li>
-                    <li><strong>Pegar a Chave Web:</strong> Vai no ícone da Engrenagem ⚙️ (Configurações do Projeto) &gt; Seus Apps &gt; Clica no ícone Web <code>&lt;/&gt;</code> &gt; Copia o bloco de código <code>firebaseConfig</code> e entrega à IA.</li>
-                  </ol>
-                </div>
-
-                {/* GITHUB & NETLIFY (SLIDE 14 & 18) */}
-                <div className="page-card p-6 rounded-2xl bg-zinc-900/70 border border-zinc-800 space-y-4">
-                  <h2 className="text-sm font-black text-amber-500 uppercase tracking-wide border-b border-zinc-800 pb-2">
-                    🐙 GITHUB & HOSPEDAGEM NO NETLIFY COM O ARQUIVO _redirects
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[10px]">
-                    <div className="p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1.5">
-                      <strong className="text-amber-400 block text-xs font-black">GitHub: O Cofre Seguro</strong>
-                      <p className="text-zinc-300">
-                        1. Cria conta gratuita no <code>github.com</code>.<br/>
-                        2. No Google AI Studio, clica em <em>Export &gt; Export to GitHub</em>.<br/>
-                        3. Autoriza a conexão e cria o repositório seguro com 1 clique.
-                      </p>
-                    </div>
-                    <div className="p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1.5">
-                      <strong className="text-amber-400 block text-xs font-black">Netlify: Deploy em 10 Segundos</strong>
-                      <p className="text-zinc-300">
-                        1. Cria o arquivo <code>_redirects</code> na pasta pública com <code>/* /index.html 200</code> (evita erro 404).<br/>
-                        2. Roda <code>npm run build</code> e arrasta a pasta <code>dist</code> no Netlify Drop.<br/>
-                        3. Teu app ganha link seguro oficial com HTTPS 🔒 grátis!
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* UI PROFISSIONAL & SEGURANÇA (SLIDE 15, 17 & 19) */}
-                <div className="page-card p-6 rounded-2xl bg-zinc-900/70 border border-zinc-800 space-y-4">
-                  <h2 className="text-sm font-black text-amber-500 uppercase tracking-wide border-b border-zinc-800 pb-2">
-                    🛡️ UI PROFISSIONAL: REMOVENDO "TEXTOS SUJOS" & REGRAS DE SEGURANÇA
-                  </h2>
-                  <p className="text-zinc-300">
-                    A primeira versão gerada por qualquer IA costuma vir com textos técnicos desnecessários (como <em>"Firebase connected"</em>, <em>"Database synchronized"</em>). Estes termos devem ser completamente ocultados do usuário final.
-                  </p>
-                  <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[10px] text-zinc-300 space-y-1">
-                    <strong className="text-amber-400 block font-bold">Instrução de Limpeza de Interface:</strong>
-                    <em>"Por favor, oculte todas as mensagens técnicas e dados confidenciais do visual da aplicação. Os utilizadores precisam ver apenas as informações esportivas, botões de ação e mensagens amigáveis de sucesso ou erro."</em>
-                  </div>
-                </div>
-
-                {/* MONETIZAÇÃO COM ADSENSE & OFFERWALL */}
-                <div className="page-card p-6 rounded-2xl bg-zinc-900/70 border border-zinc-800 space-y-4">
-                  <h2 className="text-sm font-black text-amber-500 uppercase tracking-wide border-b border-zinc-800 pb-2">
-                    💰 MONETIZAÇÃO: GOOGLE ADSENSE, ARQUIVO ads.txt & OFFERWALL 24H
-                  </h2>
-                  <p className="text-zinc-300">
-                    O modelo de receita do <strong>Dr. PALPITES</strong> combina 3 fontes complementares de faturamento:
-                  </p>
-                  <ul className="list-disc pl-5 space-y-1.5 text-[10px] text-zinc-300">
-                    <li><strong>Arquivo ads.txt:</strong> Colocado na raiz pública (<code>/public/ads.txt</code>) garantindo a aprovação do Google com o código de editor <code>pub-8959686518292972</code>.</li>
-                    <li><strong>Offerwall 24 Horas:</strong> O usuário que não quer pagar assinatura pode assistir a um anúncio em vídeo voluntário para liberar o acesso VIP completo por 24 horas.</li>
-                    <li><strong>Parcerias e Afiliados:</strong> Links diretos de afiliação e suporte direto no WhatsApp.</li>
-                  </ul>
-                </div>
-
-                {/* PROJETO COMPLETO & MÉTODO TECNO (SLIDE 20 & 21) */}
-                <div className="page-card p-6 rounded-2xl bg-zinc-900/70 border border-zinc-800 space-y-4">
-                  <h2 className="text-sm font-black text-amber-500 uppercase tracking-wide border-b border-zinc-800 pb-2">
-                    🏆 O MÉTODO T.E.C.N.O. DE DESENVOLVIMENTO COM IA
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-[10px]">
-                    <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 text-center">
-                      <strong className="text-amber-500 block font-black text-xs">T</strong>
-                      <span className="font-bold text-white block mt-1">Transformar</span>
-                      <span className="text-[9px] text-zinc-400 block mt-1">A ideia em requisitos de 3 telas.</span>
-                    </div>
-                    <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 text-center">
-                      <strong className="text-amber-500 block font-black text-xs">E</strong>
-                      <span className="font-bold text-white block mt-1">Estruturar</span>
-                      <span className="text-[9px] text-zinc-400 block mt-1">O banco Firebase e as chaves.</span>
-                    </div>
-                    <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 text-center">
-                      <strong className="text-amber-500 block font-black text-xs">C</strong>
-                      <span className="font-bold text-white block mt-1">Construir</span>
-                      <span className="text-[9px] text-zinc-400 block mt-1">Com prompts mestres no AI Studio.</span>
-                    </div>
-                    <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 text-center">
-                      <strong className="text-amber-500 block font-black text-xs">N</strong>
-                      <span className="font-bold text-white block mt-1">Navegar</span>
-                      <span className="text-[9px] text-zinc-400 block mt-1">Corrigir bugs e testar no celular.</span>
-                    </div>
-                    <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 text-center">
-                      <strong className="text-amber-500 block font-black text-xs">O</strong>
-                      <span className="font-bold text-white block mt-1">Operar</span>
-                      <span className="text-[9px] text-zinc-400 block mt-1">Deploy no Netlify e AdSense.</span>
-                    </div>
-                  </div>
-                  <div className="p-4 rounded-xl bg-zinc-950 border border-amber-500/30 text-center space-y-1">
-                    <p className="text-amber-400 font-bold text-xs italic">"Enquanto eu não conseguir, não vou parar."</p>
-                    <p className="text-[9px] text-zinc-400">Estabelece objetivos claros antes de iniciar um projeto — seja onde estiveres, é sempre uma oportunidade de criar e vencer. 🌟</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Modal Footer */}
-              <div className="p-4 border-t border-zinc-800 flex justify-end gap-3 bg-zinc-900/60">
-                <button 
-                  onClick={() => setShowDocModal(false)}
-                  className="px-4 py-2 text-[10px] font-black uppercase text-zinc-400 hover:text-white"
-                >
-                  Fechar
-                </button>
-                <button 
-                  onClick={() => window.print()}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 text-black font-black uppercase text-[10px] rounded-xl hover:bg-amber-400 active:scale-95 transition-all shadow-lg"
-                >
-                  <Download size={14} /> Imprimir / Baixar PDF
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
@@ -2073,7 +1607,7 @@ const App: React.FC = () => {
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl overflow-hidden border-2 border-amber-500 flex items-center justify-center bg-zinc-950 shadow-lg">
-              <img src={appConfig.logoUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'https://i.ibb.co/fYTYtmVp/IMG-20260714-WA0001-2.webp'; }} />
+              <img src={appConfig.logoUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'https://i.ibb.co/xq4qVtZd/grok-image-lf8jcb.webp'; }} />
             </div>
             <div>
               <h1 className={isDarkMode ? "text-lg font-black italic tracking-tighter uppercase leading-none text-white" : "text-lg font-black italic tracking-tighter uppercase leading-none text-slate-900"}>DR <span className="text-amber-500">PALPITES</span></h1>
@@ -2118,14 +1652,11 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <AdSenseBanner isDarkMode={isDarkMode} />
-
             {loading ? <div className="py-40 flex justify-center"><RefreshCw className="animate-spin text-amber-500" size={40} /></div> : (
               matches.length === 0 ? <div className={isDarkMode ? "py-32 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-32 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('vazio')}</div> : 
               matches.map((m, i) => {
-                const isMatchVip = m.isVipMatch === true || (i < 5);
-                const isMatchUnlocked = hasVipAccess || unlockedMatches.includes(`${m.homeTeam}-${m.awayTeam}`);
-                const isMatchLocked = isMatchVip && !isMatchUnlocked;
+                const isMatchVip = m.isVipMatch === true;
+                const isMatchLocked = isMatchVip && !hasVipAccess;
 
                 const blockTitles = [
                   "🔥 O MELHOR PALPITE DE HOJE!",
@@ -2166,16 +1697,10 @@ const App: React.FC = () => {
                             </div>
 
                             <div className="grid grid-cols-1 gap-2">
-                              <button 
-                                onClick={() => startAdPlayback("match", `${m.homeTeam}-${m.awayTeam}`)}
-                                className="w-full bg-amber-500 hover:bg-amber-400 text-black font-black py-4 rounded-xl text-[10px] uppercase italic flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
-                              >
-                                🔓 DESBLOQUEAR GRÁTIS (VER ANÚNCIO)
-                              </button>
                               <a 
                                 href={appConfig.loja}
                                 target="_blank"
-                                className={isDarkMode ? "w-full py-4 rounded-xl border-2 text-[10px] font-black uppercase italic flex items-center justify-center gap-2 transition-all active:scale-95 bg-zinc-900 border-zinc-800 text-amber-500 hover:bg-zinc-800" : "w-full py-4 rounded-xl border-2 text-[10px] font-black uppercase italic flex items-center justify-center gap-2 transition-all active:scale-95 bg-white border-slate-300 text-slate-900 hover:bg-slate-50 shadow-md"}
+                                className={isDarkMode ? "w-full py-4 rounded-xl border-2 text-[10px] font-black uppercase italic flex items-center justify-center gap-2 transition-all active:scale-95 bg-zinc-900 border-zinc-800 text-amber-500 hover:bg-zinc-800 shadow-lg" : "w-full py-4 rounded-xl border-2 text-[10px] font-black uppercase italic flex items-center justify-center gap-2 transition-all active:scale-95 bg-white border-slate-300 text-slate-900 hover:bg-slate-50 shadow-md"}
                               >
                                 <Crown size={14} className="text-amber-500" strokeWidth={3} /> TORNAR-SE MEMBRO VIP
                               </a>
@@ -2223,8 +1748,6 @@ const App: React.FC = () => {
                <div className="bg-amber-500 p-2 rounded-xl shadow-md"><Layers size={20} className="text-black" /></div>
                <h2 className={isDarkMode ? "text-lg font-black uppercase italic tracking-tighter drop-shadow-md text-white" : "text-lg font-black uppercase italic tracking-tighter drop-shadow-md text-slate-900"}>{t('fichas')}</h2>
              </div>
-
-             <AdSenseBanner isDarkMode={isDarkMode} />
 
              {loading ? <div className="py-40 flex justify-center"><RefreshCw className="animate-spin text-amber-500" size={40} /></div> : (
                fichas.length === 0 ? <div className={isDarkMode ? "py-40 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-40 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('vazio')}</div> : 
@@ -2326,8 +1849,6 @@ const App: React.FC = () => {
                 </div>
               </div>
 
-              <AdSenseBanner isDarkMode={isDarkMode} />
-
              {loading ? <div className="py-40 flex justify-center"><RefreshCw className="animate-spin text-emerald-500" size={40} /></div> : (
                ganhos.length === 0 ? <div className={isDarkMode ? "py-40 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-40 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('historicoVazio')}</div> : 
                ganhos.map((a, i) => (
@@ -2384,7 +1905,6 @@ const App: React.FC = () => {
         {activeTab === "boletim" && (
           <section className="animate-in space-y-6 pb-20">
             <h3 className={isDarkMode ? "text-xl font-black italic uppercase px-3 tracking-tighter text-white" : "text-xl font-black italic uppercase px-3 tracking-tighter text-slate-900"}>{t('boletim').toUpperCase()}</h3>
-            <AdSenseBanner isDarkMode={isDarkMode} />
             {betSlip.length === 0 ? <div className={isDarkMode ? "py-40 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-40 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('vazio')}</div> : 
               <div className="space-y-4">
                 <div className="space-y-3">
@@ -2440,7 +1960,6 @@ const App: React.FC = () => {
         {activeTab === "guardados" && (
           <section className="space-y-6 animate-in pb-20">
              <h3 className={isDarkMode ? "text-xl font-black italic uppercase px-3 tracking-tighter text-white" : "text-xl font-black italic uppercase px-3 tracking-tighter text-slate-900"}>{t('myTickets')}</h3>
-             <AdSenseBanner isDarkMode={isDarkMode} />
              {savedTickets.length === 0 ? <div className={isDarkMode ? "py-40 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-40 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('vazio')}</div> : 
                savedTickets.map(tkt => (
                  <div key={tkt.id} className={isDarkMode ? "p-6 border-4 rounded-[2.5rem] shadow-xl bg-zinc-900/60 border-zinc-800 relative space-y-4" : "p-6 border-4 rounded-[2.5rem] shadow-xl bg-white border-slate-200 relative space-y-4"}>
@@ -2475,9 +1994,6 @@ const App: React.FC = () => {
         {activeTab === "chat" && (
           <section className="animate-in flex flex-col h-full overflow-hidden">
             <h3 className={isDarkMode ? "text-xl font-black italic uppercase px-3 tracking-tighter mb-4 shrink-0 leading-none text-white" : "text-xl font-black italic uppercase px-3 tracking-tighter mb-4 shrink-0 leading-none text-slate-900"}>{t('chat')}</h3>
-            <div className="shrink-0 px-2">
-              <AdSenseBanner isDarkMode={isDarkMode} />
-            </div>
             <div className={isDarkMode ? "flex-1 overflow-y-auto p-5 space-y-5 rounded-[2.5rem] border-4 bg-zinc-900/60 border-zinc-800 shadow-inner shadow-black/40" : "flex-1 overflow-y-auto p-5 space-y-5 rounded-[2.5rem] border-4 bg-slate-50 border-slate-200 shadow-inner"}>
               {chatMessages.length === 0 ? <div className="text-center py-40 text-[10px] uppercase font-black opacity-30">{t('noMessages')}</div> :
                 chatMessages.map((msg, i) => {
@@ -2590,180 +2106,6 @@ const App: React.FC = () => {
         option { background: #000; color: #fff; font-weight: 900; }
         .marquee-content { white-space: nowrap; }
       `}} />
-
-      {/* 24-HOUR ACCESS OFFERWALL OVERLAY */}
-      {!isNormalModeUnlocked && user && (
-        <div className="fixed inset-0 z-[150] bg-slate-950 flex flex-col items-center justify-center p-6 overflow-y-auto">
-          <div className="w-full max-w-md space-y-8 text-center animate-in">
-            {/* Dr. Palpites Header branding */}
-            <div className="space-y-4">
-              <div className="w-24 h-24 rounded-[2.5rem] mx-auto overflow-hidden shadow-[0_0_50px_rgba(245,158,11,0.25)] border-4 border-amber-500 flex items-center justify-center bg-black">
-                <img src={appConfig.logoUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-black uppercase italic tracking-tighter text-white leading-none">
-                  DR <span className="text-amber-500">PALPITES</span>
-                </h1>
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 italic mt-2">
-                  Não aposta na sorte...aposta na ciência.!!
-                </p>
-              </div>
-            </div>
-
-            {/* Main Offerwall layout following strict user guidelines */}
-            <div className="bg-zinc-900/90 border-4 border-zinc-800 rounded-[3rem] p-6 shadow-2xl relative overflow-hidden space-y-6">
-              <div className="absolute top-3 right-5 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[7px] font-black tracking-widest text-zinc-500 uppercase">AdSense Offerwall</span>
-              </div>
-
-              <div className="space-y-2 pt-2">
-                <h2 className="text-2xl font-black italic uppercase text-amber-500 tracking-tight leading-none">Welcome to Dr. PALPITES</h2>
-                <h3 className="text-xs font-black uppercase text-white tracking-widest">Unlock more content</h3>
-                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-wider leading-relaxed">
-                  Take action to continue accessing the content on this site
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                {/* Option 1: View short ad */}
-                <div className="p-4 rounded-[1.8rem] border-4 border-zinc-800 bg-black/50 text-left space-y-3.5 hover:border-amber-500/20 transition-all">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="text-[12px] font-black uppercase text-white tracking-tight">View a short ad</h4>
-                      <p className="text-[9px] font-black text-zinc-500 uppercase italic">Site-wide access for 24 hours...</p>
-                    </div>
-                    <span className="text-[9px] bg-amber-500/10 text-amber-500 px-2.5 py-1 rounded-full font-black border border-amber-500/20">GRÁTIS</span>
-                  </div>
-                  <button 
-                    onClick={() => startAdPlayback("normal")}
-                    className="w-full bg-amber-500 hover:bg-amber-400 text-black font-black py-4 rounded-[1.2rem] text-[10px] uppercase italic flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 border-b-4 border-amber-600"
-                  >
-                    🔓 DESBLOQUEAR GRÁTIS DE 24H
-                  </button>
-                </div>
-
-                {/* Option 2: VIP Access */}
-                <div className="p-4 rounded-[1.8rem] border-4 border-zinc-800 bg-zinc-950/40 text-left space-y-3.5 hover:border-amber-500/20 transition-all">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="text-[12px] font-black uppercase text-amber-500 tracking-tight">Adquirir Acesso VIP</h4>
-                      <p className="text-[9px] font-black text-zinc-500 uppercase italic">Acesso ilimitado instantâneo sem nenhum anúncio</p>
-                    </div>
-                    <span className="text-[9px] bg-amber-500 text-black px-2.5 py-1 rounded-full font-black">👑 VIP</span>
-                  </div>
-                  <a 
-                    href={appConfig.loja}
-                    target="_blank"
-                    className="w-full bg-zinc-950 hover:bg-zinc-900 text-amber-500 border-2 border-amber-500/30 font-black py-4 rounded-[1.2rem] text-[10px] uppercase italic flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
-                  >
-                    👑 ADQUIRIR MEMBRESIA VIP
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-center gap-2">
-              <button 
-                onClick={() => {
-                  setUser(null);
-                  localStorage.removeItem("dr_user");
-                }}
-                className="text-[10px] font-black text-zinc-600 hover:text-white uppercase italic tracking-widest transition-colors flex items-center gap-1"
-              >
-                <LogOut size={12} /> {t('logout').toUpperCase()}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* REWARDED AD VIDEO PLAYER SIMULATOR */}
-      {isAdPlaying && (
-        <div className="fixed inset-0 z-[200] bg-black/98 flex flex-col items-center justify-center p-4">
-          <div className="w-full max-w-sm bg-zinc-950 rounded-[3rem] border-4 border-zinc-800 overflow-hidden shadow-2xl relative flex flex-col aspect-[9/16]">
-            {/* Top Indicator bar */}
-            <div className="p-4 bg-black/60 border-b border-zinc-900 flex justify-between items-center text-[9px] font-black uppercase text-zinc-400">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-                <span className="text-white tracking-widest">PATROCINADO</span>
-              </div>
-              <button 
-                onClick={() => setAdMuted(!adMuted)}
-                className="p-1.5 hover:bg-zinc-900 rounded-lg transition-colors text-white"
-              >
-                {adMuted ? "🔇 MUTED" : "🔊 AUDIO"}
-              </button>
-            </div>
-
-            {/* Interactive Video Body */}
-            <div className={`flex-1 p-6 bg-gradient-to-b ${MOCK_ADS[currentAdIndex].bgGradient} flex flex-col justify-between items-center text-center relative overflow-hidden`}>
-              {/* Background ambient animations */}
-              <div className="absolute inset-0 opacity-10 flex items-center justify-center">
-                <div className="w-72 h-72 rounded-full bg-white animate-pulse" />
-              </div>
-
-              {/* Ad Logo area */}
-              <div className="pt-8 space-y-3 z-10">
-                <div className="w-20 h-20 rounded-[2rem] bg-black/80 border-4 border-amber-500 flex items-center justify-center mx-auto shadow-xl">
-                  <span className="text-3xl">🎮</span>
-                </div>
-                <h3 className="text-xl font-black uppercase tracking-tight text-white leading-none">
-                  {MOCK_ADS[currentAdIndex].title}
-                </h3>
-                <span className="inline-block bg-black/60 text-amber-500 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider border border-amber-500/20">
-                  {MOCK_ADS[currentAdIndex].subtitle}
-                </span>
-              </div>
-
-              {/* Ad message */}
-              <div className="px-4 py-6 bg-black/50 backdrop-blur-sm rounded-[2rem] border-2 border-zinc-800/50 max-w-[280px] z-10 space-y-2">
-                <p className="text-[11px] font-black text-zinc-300 leading-relaxed uppercase">
-                  {MOCK_ADS[currentAdIndex].description}
-                </p>
-                <button className="bg-amber-500 text-black font-black uppercase text-[10px] tracking-widest py-2.5 px-6 rounded-full italic hover:scale-105 transition-transform">
-                  {MOCK_ADS[currentAdIndex].cta}
-                </button>
-              </div>
-
-              {/* Status footer */}
-              <div className="w-full z-10 space-y-3">
-                <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest italic animate-bounce">
-                  O seu palpite científico está a ser calculado pela IA do Dr. Palpites...
-                </p>
-              </div>
-            </div>
-
-            {/* Progress and Countdown controller bar */}
-            <div className="p-6 bg-zinc-950 border-t border-zinc-900 space-y-4">
-              {/* Progress bar */}
-              <div className="w-full h-2 bg-zinc-900 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-amber-500 transition-all duration-1000"
-                  style={{ width: `${((5 - adSecondsLeft) / 5) * 100}%` }}
-                />
-              </div>
-
-              {/* Action buttons */}
-              {adComplete ? (
-                <button 
-                  onClick={handleClaimAdReward}
-                  className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black py-4 rounded-[1.5rem] text-[11px] uppercase italic tracking-wider flex items-center justify-center gap-2 shadow-xl border-b-4 border-emerald-600 animate-bounce"
-                >
-                  🎁 RESGATAR RECOMPENSA & FECHAR
-                </button>
-              ) : (
-                <div className="flex items-center justify-center gap-2 text-zinc-500 py-3">
-                  <span className="animate-spin h-3 w-3 border-2 border-amber-500 border-t-transparent rounded-full" />
-                  <span className="text-[9px] font-black uppercase tracking-widest">
-                    Assista para ganhar recompensa ({adSecondsLeft}s)
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[200] space-y-2 w-[90%] max-w-[300px]">
         {toasts.map(toast => (

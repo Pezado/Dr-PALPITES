@@ -1,8 +1,11 @@
 {
+  "name": "⚽🇦🇴 Dr. PALPITES.: NÃO APOSTA NA SORTE...APOSTA NA CIÊNCIA 🧠🏆",
+  "description": "Dr. PALPITES - Não aposta na sorte...aposta na ciência.!!",
   "requestFramePermissions": [
     "camera",
     "geolocation"
   ],
-  "name": "⚽🇦🇴 Dr. PALPITES.: NÃO APOSTA NA SORTE...APOSTA NA CIÊNCIA 🧠🏆",
-  "description": "Dr. PALPITES - Não aposta na sorte...aposta na ciência.!!"
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
