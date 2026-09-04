@@ -3,11 +3,18 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
+    <!-- Adcash Anti-Adblock Library -->
+    <script type="text/javascript" src="/site_core_lib_88.js"></script>
     <script type="text/javascript">
-        aclib.runAutoTag({
+      try {
+        if (typeof aclib !== 'undefined' && aclib.runAutoTag) {
+          aclib.runAutoTag({
             zoneId: 'ggynhemder',
-        });
+          });
+        }
+      } catch (e) {
+        console.warn('Adcash init error:', e);
+      }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#020617">
