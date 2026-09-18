@@ -46,7 +46,11 @@ import {
   Trophy,
   History,
   Clock,
-  AlertTriangle
+  AlertTriangle,
+  Wrench,
+  CheckCircle2,
+  Image as ImageIcon,
+  Power
 } from "lucide-react";
 import { db } from "./firebase";
 import { 
@@ -765,6 +769,96 @@ const cleanSelectionText = (market: string, selection: string) => {
   return cleanedSelection;
 };
 
+// --- Luanda (Angola, UTC+1) Date, Time & Countdown Helpers ---
+const getNowLuandaISO = (): string => {
+  const d = new Date();
+  const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+  const luandaDate = new Date(utc + (3600000 * 1)); // UTC+1
+  const year = luandaDate.getFullYear();
+  const month = String(luandaDate.getMonth() + 1).padStart(2, '0');
+  const day = String(luandaDate.getDate()).padStart(2, '0');
+  const hours = String(luandaDate.getHours()).padStart(2, '0');
+  const minutes = String(luandaDate.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
+const addTimeToLuandaISO = (days: number, hours: number): string => {
+  const d = new Date();
+  const totalMsToAdd = (days * 24 + hours) * 3600 * 1000;
+  const target = new Date(d.getTime() + totalMsToAdd);
+  const utc = target.getTime() + (target.getTimezoneOffset() * 60000);
+  const luandaDate = new Date(utc + (3600000 * 1));
+  const year = luandaDate.getFullYear();
+  const month = String(luandaDate.getMonth() + 1).padStart(2, '0');
+  const day = String(luandaDate.getDate()).padStart(2, '0');
+  const h = String(luandaDate.getHours()).padStart(2, '0');
+  const m = String(luandaDate.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${h}:${m}`;
+};
+
+const parseLuandaISO = (isoStr?: string): number => {
+  if (!isoStr) return 0;
+  if (isoStr.includes("+") || isoStr.includes("Z")) return new Date(isoStr).getTime();
+  return new Date(`${isoStr}:00+01:00`).getTime();
+};
+
+const formatLuandaTimeOnly = (dateStrOrMs?: string | number): string => {
+  if (!dateStrOrMs) return "--:--";
+  const ms = typeof dateStrOrMs === 'string' ? parseLuandaISO(dateStrOrMs) : dateStrOrMs;
+  if (!ms || isNaN(ms)) return "--:--";
+  return new Date(ms).toLocaleTimeString('pt-PT', {
+    timeZone: 'Africa/Luanda',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+};
+
+const formatLuandaDateTimeFull = (dateStrOrMs?: string | number): string => {
+  if (!dateStrOrMs) return "--/-- ÀS --:--";
+  const ms = typeof dateStrOrMs === 'string' ? parseLuandaISO(dateStrOrMs) : dateStrOrMs;
+  if (!ms || isNaN(ms)) return "--/-- ÀS --:--";
+  const d = new Date(ms);
+  const day = d.toLocaleDateString('pt-PT', {
+    timeZone: 'Africa/Luanda',
+    day: '2-digit',
+    month: '2-digit'
+  });
+  const time = d.toLocaleTimeString('pt-PT', {
+    timeZone: 'Africa/Luanda',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+  return `${day} ÀS ${time}`;
+};
+
+const getRemainingCountdown = (targetIso?: string) => {
+  if (!targetIso) {
+    return { formatted: "00:00:00", isExpired: true, totalMs: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+  const targetMs = parseLuandaISO(targetIso);
+  if (!targetMs) {
+    return { formatted: "00:00:00", isExpired: true, totalMs: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+  const diff = targetMs - Date.now();
+  if (diff <= 0) {
+    return { formatted: "00:00:00", isExpired: true, totalMs: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+  const totalSeconds = Math.floor(diff / 1000);
+  const days = Math.floor(totalSeconds / (3600 * 24));
+  const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const pad = (n: number) => String(n).padStart(2, '0');
+
+  const formatted = days > 0
+    ? `${days}d ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+    : `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+
+  return { formatted, isExpired: false, totalMs: diff, days, hours, minutes, seconds };
+};
+
 const FirebaseProvider = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
@@ -775,10 +869,26 @@ const App: React.FC = () => {
     telegram: "https://t.me/DR_PALPITES",
     whatsapp: "https://chat.whatsapp.com/CUCKC54B70KB1mziO1QwRy?mode=gi_t",
     facebook: "https://www.facebook.com/profile.php?id=100083556525090",
-    support: "+244942607599",
+    support: "+244998554117",
     logoUrl: "https://i.ibb.co/xq4qVtZd/grok-image-lf8jcb.webp",
-    loja: "https://fermagna.netlify.app/"
+    loja: "https://fermagna.netlify.app/",
+    manutencao: {
+      ativo: false,
+      dataInicio: "2026-09-18T11:15",
+      dataFim: "2026-09-19T20:00",
+      mensagem: "Espero que estejas bem , por favor aguarde enquanto actualizamos o nosso sistema.!!"
+    },
+    liberado: {
+      ativo: false,
+      duracaoDias: 1,
+      duracaoHoras: 23,
+      dataInicio: "2026-09-18T11:16",
+      dataFim: "2026-09-20T11:16"
+    }
   });
+
+  const [nowTick, setNowTick] = useState(Date.now());
+  const [showModoAbertoModal, setShowModoAbertoModal] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register" | "recovery">("login");
   const [recoveryStep, setRecoveryStep] = useState<"verify" | "reset">("verify");
   const [recoveredUser, setRecoveredUser] = useState<UserProfile | null>(null);
@@ -828,11 +938,34 @@ const App: React.FC = () => {
     setTimeout(() => setToasts(prev => prev.filter(toast => toast.id !== id)), 3000);
   }, []);
 
+  const isManutencaoActive = useMemo(() => {
+    if (!appConfig.manutencao?.ativo) return false;
+    if (!appConfig.manutencao?.dataFim) return true;
+    const endMs = parseLuandaISO(appConfig.manutencao.dataFim);
+    return endMs > Date.now();
+  }, [appConfig.manutencao, nowTick]);
+
+  const isLiberadoActive = useMemo(() => {
+    if (!appConfig.liberado?.ativo) return false;
+    if (!appConfig.liberado?.dataFim) return true;
+    const endMs = parseLuandaISO(appConfig.liberado.dataFim);
+    return endMs > Date.now();
+  }, [appConfig.liberado, nowTick]);
+
+  const manutencaoCountdown = useMemo(() => {
+    return getRemainingCountdown(appConfig.manutencao?.dataFim);
+  }, [appConfig.manutencao?.dataFim, nowTick]);
+
+  const liberadoCountdown = useMemo(() => {
+    return getRemainingCountdown(appConfig.liberado?.dataFim);
+  }, [appConfig.liberado?.dataFim, nowTick]);
+
   const hasVipAccess = useMemo(() => {
+    if (isLiberadoActive) return true;
     const isVip = user?.isVip === true;
     const isExpired = (user?.vipExpiry && user.vipExpiry > 0) ? Date.now() > user.vipExpiry : false;
     return isVip && !isExpired;
-  }, [user]);
+  }, [user, isLiberadoActive]);
 
   const vipDaysRemaining = useMemo(() => {
     if (!user?.vipExpiry) return 0;
@@ -957,27 +1090,72 @@ const App: React.FC = () => {
     const configRef = ref(db, "drpalpites/config");
     const unsubscribe = onValue(configRef, (snapshot) => {
       if (snapshot.exists()) {
-        const data = snapshot.val();
-        setAppConfig(prev => ({
-          telegram: data.telegram || prev.telegram,
-          whatsapp: data.whatsapp || prev.whatsapp,
-          facebook: data.facebook || prev.facebook,
-          support: data.support || prev.support,
-          logoUrl: data.logoUrl || prev.logoUrl,
-          loja: data.loja || prev.loja
-        }));
+        const raw = snapshot.val();
+        const data = raw?.config || raw;
+        setAppConfig({
+          telegram: data.telegram || "https://t.me/DR_PALPITES",
+          whatsapp: data.whatsapp || "https://chat.whatsapp.com/CUCKC54B70KB1mziO1QwRy?mode=gi_t",
+          facebook: data.facebook || "https://www.facebook.com/profile.php?id=100083556525090",
+          support: data.support || "+244998554117",
+          logoUrl: data.logoUrl || "https://i.ibb.co/xq4qVtZd/grok-image-lf8jcb.webp",
+          loja: data.loja || "https://fermagna.netlify.app/",
+          manutencao: {
+            ativo: typeof data.manutencao?.ativo === "boolean" ? data.manutencao.ativo : false,
+            mensagem: data.manutencao?.mensagem || "Espero que estejas bem , por favor aguarde enquanto actualizamos o nosso sistema.!!",
+            dataInicio: data.manutencao?.dataInicio || "",
+            dataFim: data.manutencao?.dataFim || ""
+          },
+          liberado: {
+            ativo: typeof data.liberado?.ativo === "boolean" ? data.liberado.ativo : false,
+            duracaoDias: typeof data.liberado?.duracaoDias === "number" ? data.liberado.duracaoDias : (Number(data.liberado?.duracaoDias) || 1),
+            duracaoHoras: typeof data.liberado?.duracaoHoras === "number" ? data.liberado.duracaoHoras : (Number(data.liberado?.duracaoHoras) || 23),
+            dataInicio: data.liberado?.dataInicio || "",
+            dataFim: data.liberado?.dataFim || ""
+          }
+        });
       } else {
         set(configRef, {
           telegram: "https://t.me/DR_PALPITES",
           whatsapp: "https://chat.whatsapp.com/CUCKC54B70KB1mziO1QwRy?mode=gi_t",
           facebook: "https://www.facebook.com/profile.php?id=100083556525090",
-          support: "+244942607599",
+          support: "+244998554117",
           logoUrl: "https://i.ibb.co/xq4qVtZd/grok-image-lf8jcb.webp",
-          loja: "https://fermagna.netlify.app/"
+          loja: "https://fermagna.netlify.app/",
+          manutencao: {
+            ativo: false,
+            dataInicio: "2026-09-18T11:15",
+            dataFim: "2026-09-19T20:00",
+            mensagem: "Espero que estejas bem , por favor aguarde enquanto actualizamos o nosso sistema.!!"
+          },
+          liberado: {
+            ativo: false,
+            dataInicio: "2026-09-18T11:16",
+            dataFim: "2026-09-20T11:16",
+            duracaoDias: 1,
+            duracaoHoras: 23
+          }
         }).catch(err => console.error("Error setting initial config:", err));
       }
     });
     return () => unsubscribe();
+  }, []);
+
+  // Show "Acesso VIP Liberado" modal when Modo Aberto is active
+  useEffect(() => {
+    if (isLiberadoActive) {
+      const dismissed = sessionStorage.getItem("dr_dismiss_liberado");
+      if (!dismissed) {
+        setShowModoAbertoModal(true);
+      }
+    }
+  }, [isLiberadoActive]);
+
+  // 1-second interval ticker for live Angola clock and countdowns
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNowTick(Date.now());
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -1744,90 +1922,262 @@ const App: React.FC = () => {
     );
   }
 
+  // --- Tela de Manutenção Técnica (Bloqueio Imediato para Utilizadores) ---
+  if (isManutencaoActive) {
+    return (
+      <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
+        {/* Ambient Glows */}
+        <div className="absolute -top-32 -left-32 w-80 h-80 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="w-full max-w-md space-y-4 relative z-10 animate-in">
+          {/* Top Badge & Logo */}
+          <div className="text-center space-y-2">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-[10px] font-black uppercase tracking-wider shadow-lg">
+              <span className="text-base">⚽</span> DR. PALPITES CIÊNCIA
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black uppercase italic tracking-tighter text-white">
+              MANUTENÇÃO EM ANDAMENTO
+            </h1>
+            <p className="text-[11px] text-zinc-400 font-medium">
+              Estamos atualizando o nosso sistema para melhor atendê-lo.
+            </p>
+          </div>
+
+          {/* Mensagem da Equipa */}
+          <div className="p-4 rounded-2xl bg-zinc-900/90 border border-zinc-800 space-y-1.5 shadow-xl">
+            <div className="flex items-center gap-2 text-amber-500 text-[9px] font-black uppercase tracking-wider">
+              <AlertTriangle size={14} /> Mensagem da Equipa
+            </div>
+            <p className="text-[12px] text-zinc-200 leading-relaxed font-medium italic">
+              "{appConfig.manutencao?.mensagem || "Espero que estejas bem , por favor aguarde enquanto actualizamos o nosso sistema.!!"}"
+            </p>
+          </div>
+
+          {/* Horários: AGORA e RETORNO PREVISTO */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-3.5 rounded-2xl bg-zinc-900/90 border border-zinc-800 space-y-1 text-center shadow-lg">
+              <span className="text-[9px] font-black uppercase text-zinc-400 block tracking-wider">AGORA (🇦🇴 LUANDA)</span>
+              <span className="text-2xl font-mono font-black text-amber-400">
+                {formatLuandaTimeOnly(Date.now())}
+              </span>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-zinc-900/90 border border-zinc-800 space-y-1 text-center shadow-lg">
+              <span className="text-[9px] font-black uppercase text-zinc-400 block tracking-wider">RETORNO PREVISTO</span>
+              <span className="text-2xl font-mono font-black text-emerald-400">
+                {formatLuandaTimeOnly(appConfig.manutencao?.dataFim)}
+              </span>
+            </div>
+          </div>
+
+          {/* Tempo Restante Countdown */}
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-zinc-900 to-black border-2 border-red-500/40 text-center space-y-2 shadow-2xl">
+            <span className="text-[10px] font-black uppercase tracking-widest text-red-400 block">
+              TEMPO RESTANTE
+            </span>
+            <div className="text-3xl sm:text-4xl font-mono font-black italic tracking-widest text-white drop-shadow-md">
+              {manutencaoCountdown.formatted}
+            </div>
+            <p className="text-[10px] text-zinc-400 font-bold">
+              O aplicativo será liberado automaticamente
+            </p>
+          </div>
+
+          {/* Action Links */}
+          <div className="space-y-2 pt-2">
+            <a
+              href={`https://wa.me/${appConfig.support?.replace(/\D/g, '')}`}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[11px] uppercase italic tracking-wider flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all"
+            >
+              <MessageCircle size={16} /> Falar com Suporte no WhatsApp
+            </a>
+            <a
+              href={appConfig.telegram}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-sky-400 border border-zinc-800 font-black text-[10px] uppercase italic tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-all"
+            >
+              <Send size={15} /> Canal Oficial Telegram
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={isDarkMode ? `min-h-screen bg-[#020617] text-white ${activeTab === 'chat' ? 'h-screen overflow-hidden pb-0' : 'pb-28'} transition-colors duration-300` : `min-h-screen bg-white text-slate-900 ${activeTab === 'chat' ? 'h-screen overflow-hidden pb-0' : 'pb-28'} transition-colors duration-300`}>
+
+      {/* Modal Acesso VIP Liberado (Modo Aberto) */}
+      {showModoAbertoModal && isLiberadoActive && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in">
+          <div className="w-full max-w-sm rounded-[2.2rem] border-2 border-emerald-500 bg-zinc-950 p-6 text-center space-y-4 shadow-2xl relative">
+            <button
+              onClick={() => {
+                sessionStorage.setItem("dr_dismiss_liberado", "true");
+                setShowModoAbertoModal(false);
+              }}
+              className="absolute top-4 right-4 p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white"
+            >
+              <X size={16} />
+            </button>
+
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+              <span>⚡</span> ACESSO VIP LIBERADO <span>⚡</span>
+            </div>
+
+            <div className="w-16 h-16 mx-auto rounded-3xl bg-emerald-500/20 border-2 border-emerald-500/50 flex items-center justify-center text-3xl shadow-lg">
+              🎁
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="text-base font-black uppercase italic text-white tracking-tight">
+                PREVISÕES LIBERADAS GRATUITAMENTE!
+              </h3>
+              <p className="text-[11px] text-zinc-300 leading-relaxed font-medium pt-1">
+                O administrador liberou todas as previsões de alta assertividade do DR. PALPITES sem precisar de ativação ou voucher de acesso!
+              </p>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-1">
+              <div className="text-[11px] font-black text-amber-400 flex items-center justify-center gap-1">
+                <Clock size={14} /> Válido até: {formatLuandaDateTimeFull(appConfig.liberado?.dataFim)}
+              </div>
+              <div className="text-[10px] font-mono font-bold text-emerald-400">
+                Tempo restante: {liberadoCountdown.formatted}
+              </div>
+            </div>
+
+            <p className="text-[10px] text-zinc-400 font-bold">
+              Aproveite agora mesmo para realizar as suas entradas e lucrar!
+            </p>
+
+            <div className="space-y-2 pt-1">
+              <button
+                onClick={() => {
+                  sessionStorage.setItem("dr_dismiss_liberado", "true");
+                  setShowModoAbertoModal(false);
+                  setActiveTab("hoje");
+                }}
+                className="w-full py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-black uppercase italic text-[11px] tracking-wider shadow-lg active:scale-95 transition-all"
+              >
+                APROVEITAR AGORA 🚀
+              </button>
+              <button
+                onClick={() => {
+                  sessionStorage.setItem("dr_dismiss_liberado", "true");
+                  setShowModoAbertoModal(false);
+                }}
+                className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-[10px] font-black uppercase tracking-wider"
+              >
+                OBRIGADO
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {isSettingsOpen && (
         <div className="fixed inset-0 z-[60] flex animate-in">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={() => setIsSettingsOpen(false)} />
-          <div className={isDarkMode ? "relative ml-auto h-full w-[80%] max-w-sm p-6 flex flex-col shadow-2xl bg-[#020617] border-l-4 border-zinc-800" : "relative ml-auto h-full w-[80%] max-w-sm p-6 flex flex-col shadow-2xl bg-white border-l-4 border-slate-100"}>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-black uppercase italic text-amber-500 tracking-tighter leading-none">{t('settings')}</h2>
+          <div className={isDarkMode ? "relative ml-auto h-full w-[94%] sm:w-[85%] max-w-md p-5 sm:p-6 flex flex-col shadow-2xl bg-[#020617] border-l-4 border-zinc-800" : "relative ml-auto h-full w-[94%] sm:w-[85%] max-w-md p-5 sm:p-6 flex flex-col shadow-2xl bg-white border-l-4 border-slate-100"}>
+            <div className="flex justify-between items-center mb-5">
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-black uppercase italic text-amber-500 tracking-tighter leading-none">{t('settings')}</h2>
+              </div>
               <button onClick={() => setIsSettingsOpen(false)} className={isDarkMode ? "p-2.5 rounded-xl border-2 border-zinc-800 bg-zinc-900/40 text-amber-500 active:scale-90 transition-all shadow-xl" : "p-2.5 rounded-xl border-2 border-slate-200 bg-slate-50 text-amber-500 active:scale-90 transition-all shadow-xl"}><X size={20}/></button>
             </div>
-            
-            <div className="flex flex-col items-center mb-6 gap-2">
-              <div className="relative group">
-                <div className={isDarkMode ? "w-24 h-24 rounded-full border-4 border-amber-500/30 bg-zinc-900 overflow-hidden flex items-center justify-center shadow-2xl" : "w-24 h-24 rounded-full border-4 border-amber-500/30 bg-slate-50 overflow-hidden flex items-center justify-center shadow-2xl"}>
-                  {user.profilePic ? (
-                    <img src={user.profilePic} className="w-full h-full object-cover" />
+
+            <div className="flex-1 flex flex-col overflow-y-auto pr-1">
+              <div className="flex flex-col items-center mb-6 gap-2">
+                <div className="relative group">
+                  <div className={isDarkMode ? "w-24 h-24 rounded-full border-4 border-amber-500/30 bg-zinc-900 overflow-hidden flex items-center justify-center shadow-2xl" : "w-24 h-24 rounded-full border-4 border-amber-500/30 bg-slate-50 overflow-hidden flex items-center justify-center shadow-2xl"}>
+                    {user.profilePic ? (
+                      <img src={user.profilePic} className="w-full h-full object-cover" />
+                    ) : (
+                      <User size={44} className={isDarkMode ? "text-zinc-600" : "text-slate-400"} />
+                    )}
+                  </div>
+                  <label className="absolute bottom-1 right-1 bg-amber-500 p-2.5 rounded-full cursor-pointer shadow-xl active:scale-90 transition-all border-2 border-black">
+                    <Camera size={16} className="text-black" />
+                    <input type="file" accept="image/*" className="hidden" onChange={handleProfilePicChange} />
+                  </label>
+                </div>
+                <h3 className={isDarkMode ? "text-sm font-black italic uppercase text-white" : "text-sm font-black italic uppercase text-slate-900"}>{user.username}</h3>
+              </div>
+
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <h3 className="text-[8px] font-black uppercase italic text-amber-500/60 tracking-[0.2em]">{t('lang').toUpperCase()} & {t('theme').toUpperCase()}</h3>
+                  <button onClick={() => {
+                     const langs: Lang[] = ['pt', 'en', 'fr', 'es'];
+                     const next = langs[(langs.indexOf(lang) + 1) % langs.length];
+                     setLang(next);
+                     localStorage.setItem("dr_lang", next);
+                  }} className={isDarkMode ? "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40" : "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200"}>
+                    <div className="flex items-center gap-3"><Globe size={18} className="text-amber-500" /> <span className={isDarkMode ? "text-[10px] font-black uppercase italic" : "text-[10px] font-black uppercase italic text-slate-900"}>{t('lang')}</span></div>
+                    <span className="text-[10px] font-black text-amber-500 uppercase">{lang}</span>
+                  </button>
+                  <button onClick={() => { setIsDarkMode(!isDarkMode); localStorage.setItem("dr_theme", !isDarkMode ? "dark" : "light"); }} className={isDarkMode ? "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40" : "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200"}>
+                    <div className="flex items-center gap-3">{isDarkMode ? <Sun size={18} className="text-amber-500" /> : <Moon size={18} className="text-amber-500" />} <span className={isDarkMode ? "text-[10px] font-black uppercase italic" : "text-[10px] font-black uppercase italic text-slate-900"}>{t('theme')}</span></div>
+                    <span className="text-[10px] font-black text-amber-500 uppercase">{isDarkMode ? 'ESCURO' : 'CLARO'}</span>
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-[8px] font-black uppercase italic text-amber-500/60 tracking-[0.2em]">{t('referralTitle')}</h3>
+                  {!user.referralCode ? (
+                    <button onClick={generateReferralCode} className="flex items-center justify-center gap-3 w-full p-3.5 rounded-[1rem] border-2 bg-amber-500 text-black font-black uppercase italic text-[9px] shadow-lg active:scale-95 transition-all border-amber-400">
+                      <UserPlus size={16} /> {t('generateReferral')}
+                    </button>
                   ) : (
-                    <User size={44} className={isDarkMode ? "text-zinc-600" : "text-slate-400"} />
+                    <button onClick={() => setIsReferralPanelOpen(true)} className={isDarkMode ? "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40 font-black uppercase italic text-[9px]" : "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200 font-black uppercase italic text-[9px]"}>
+                      <div className="flex items-center gap-3"><Users size={16} className="text-amber-500" /> {t('referralTitle')}</div>
+                      <span className="text-[10px] font-black text-amber-500">{referrals.length}</span>
+                    </button>
                   )}
                 </div>
-                <label className="absolute bottom-1 right-1 bg-amber-500 p-2.5 rounded-full cursor-pointer shadow-xl active:scale-90 transition-all border-2 border-black">
-                  <Camera size={16} className="text-black" />
-                  <input type="file" accept="image/*" className="hidden" onChange={handleProfilePicChange} />
-                </label>
-              </div>
-              <h3 className={isDarkMode ? "text-sm font-black italic uppercase text-white" : "text-sm font-black italic uppercase text-slate-900"}>{user.username}</h3>
-            </div>
 
-            <div className="flex-1 space-y-5 overflow-y-auto pr-1">
-              <div className="space-y-2">
-                <h3 className="text-[8px] font-black uppercase italic text-amber-500/60 tracking-[0.2em]">{t('lang').toUpperCase()} & {t('theme').toUpperCase()}</h3>
-                <button onClick={() => {
-                   const langs: Lang[] = ['pt', 'en', 'fr', 'es'];
-                   const next = langs[(langs.indexOf(lang) + 1) % langs.length];
-                   setLang(next);
-                   localStorage.setItem("dr_lang", next);
-                }} className={isDarkMode ? "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40" : "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200"}>
-                  <div className="flex items-center gap-3"><Globe size={18} className="text-amber-500" /> <span className={isDarkMode ? "text-[10px] font-black uppercase italic" : "text-[10px] font-black uppercase italic text-slate-900"}>{t('lang')}</span></div>
-                  <span className="text-[10px] font-black text-amber-500 uppercase">{lang}</span>
-                </button>
-                <button onClick={() => { setIsDarkMode(!isDarkMode); localStorage.setItem("dr_theme", !isDarkMode ? "dark" : "light"); }} className={isDarkMode ? "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40" : "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200"}>
-                  <div className="flex items-center gap-3">{isDarkMode ? <Sun size={18} className="text-amber-500" /> : <Moon size={18} className="text-amber-500" />} <span className={isDarkMode ? "text-[10px] font-black uppercase italic" : "text-[10px] font-black uppercase italic text-slate-900"}>{t('theme')}</span></div>
-                  <span className="text-[10px] font-black text-amber-500 uppercase">{isDarkMode ? 'ESCURO' : 'CLARO'}</span>
-                </button>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-[8px] font-black uppercase italic text-amber-500/60 tracking-[0.2em]">{t('referralTitle')}</h3>
-                {!user.referralCode ? (
-                  <button onClick={generateReferralCode} className="flex items-center justify-center gap-3 w-full p-3.5 rounded-[1rem] border-2 bg-amber-500 text-black font-black uppercase italic text-[9px] shadow-lg active:scale-95 transition-all border-amber-400">
-                    <UserPlus size={16} /> {t('generateReferral')}
-                  </button>
-                ) : (
-                  <button onClick={() => setIsReferralPanelOpen(true)} className={isDarkMode ? "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40 font-black uppercase italic text-[9px]" : "flex items-center justify-between w-full p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200 font-black uppercase italic text-[9px]"}>
-                    <div className="flex items-center gap-3"><Users size={16} className="text-amber-500" /> {t('referralTitle')}</div>
-                    <span className="text-[10px] font-black text-amber-500">{referrals.length}</span>
-                  </button>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-[8px] font-black uppercase italic text-amber-500/60 tracking-[0.2em]">STATUS</h3>
-                {hasVipAccess ? (
-                  <div className={isDarkMode ? "w-full p-4 rounded-[1rem] border-2 font-black uppercase italic text-[10px] flex flex-col items-center gap-1 shadow-md bg-amber-500/10 border-amber-500/20 text-amber-500" : "w-full p-4 rounded-[1rem] border-2 font-black uppercase italic text-[10px] flex flex-col items-center gap-1 shadow-md bg-amber-50 border-amber-200 text-amber-600"}>
-                    <div className="flex items-center gap-2"><Crown size={16} /> {t('vipStatus')}</div>
-                    <span className="text-[9px] opacity-70 leading-none">{vipDaysRemaining} {t('daysRemaining')}</span>
-                  </div>
-                ) : (
-                  <a href={appConfig.loja} target="_blank" className="w-full bg-amber-500 text-black p-3.5 rounded-[1rem] font-black uppercase italic flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all text-[10px]">
-                    <Crown size={18} /> {t('buyVip')}
-                  </a>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-[8px] font-black uppercase italic text-amber-500/60 tracking-[0.2em]">{t('community').toUpperCase()}</h3>
-                <div className="grid grid-cols-1 gap-1.5">
-                  <a href={appConfig.telegram} target="_blank" className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40 text-white font-black uppercase italic text-[9px] transition-all active:scale-95" : "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200 text-slate-900 font-black uppercase italic text-[9px] transition-all active:scale-95"}><Send size={16} className="text-sky-500" /> TELEGRAM</a>
-                  <a href={appConfig.whatsapp} target="_blank" className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40 text-white font-black uppercase italic text-[9px] transition-all active:scale-95" : "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200 text-slate-900 font-black uppercase italic text-[9px] transition-all active:scale-95"}><MessageCircle size={16} className="text-emerald-500" /> GRUPO WHATSAPP</a>
-                  <a href={appConfig.facebook} target="_blank" className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40 text-white font-black uppercase italic text-[9px] transition-all active:scale-95" : "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200 text-slate-900 font-black uppercase italic text-[9px] transition-all active:scale-95"}><Facebook size={16} className="text-blue-600" /> FACEBOOK</a>
+                <div className="space-y-2">
+                  <h3 className="text-[8px] font-black uppercase italic text-amber-500/60 tracking-[0.2em]">STATUS VIP</h3>
+                  {hasVipAccess ? (
+                    <div className={isDarkMode ? "w-full p-4 rounded-[1rem] border-2 font-black uppercase italic text-[10px] flex flex-col items-center gap-1 shadow-md bg-amber-500/10 border-amber-500/20 text-amber-500" : "w-full p-4 rounded-[1rem] border-2 font-black uppercase italic text-[10px] flex flex-col items-center gap-1 shadow-md bg-amber-50 border-amber-200 text-amber-600"}>
+                      <div className="flex items-center gap-2"><Crown size={16} /> {t('vipStatus')}</div>
+                      <span className="text-[9px] opacity-70 leading-none">{isLiberadoActive ? "MODO ABERTO (ACESSO VIP TEMPORÁRIO)" : `${vipDaysRemaining} ${t('daysRemaining')}`}</span>
+                    </div>
+                  ) : (
+                    <a href={appConfig.loja} target="_blank" rel="noreferrer" className="w-full bg-amber-500 text-black p-3.5 rounded-[1rem] font-black uppercase italic flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all text-[10px]">
+                      <Crown size={18} /> {t('buyVip')}
+                    </a>
+                  )}
                 </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-[8px] font-black uppercase italic text-amber-500/60 tracking-[0.2em]">{t('community').toUpperCase()}</h3>
+                  <div className="grid grid-cols-1 gap-1.5">
+                    <a href={appConfig.telegram} target="_blank" rel="noreferrer" className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40 text-white font-black uppercase italic text-[9px] transition-all active:scale-95" : "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200 text-slate-900 font-black uppercase italic text-[9px] transition-all active:scale-95"}>
+                      <Send size={16} className="text-sky-500" /> TELEGRAM
+                    </a>
+                    <a href={appConfig.whatsapp} target="_blank" rel="noreferrer" className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40 text-white font-black uppercase italic text-[9px] transition-all active:scale-95" : "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200 text-slate-900 font-black uppercase italic text-[9px] transition-all active:scale-95"}>
+                      <MessageCircle size={16} className="text-emerald-500" /> GRUPO WHATSAPP
+                    </a>
+                    <a href={appConfig.facebook} target="_blank" rel="noreferrer" className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40 text-white font-black uppercase italic text-[9px] transition-all active:scale-95" : "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200 text-slate-900 font-black uppercase italic text-[9px] transition-all active:scale-95"}>
+                      <Facebook size={16} className="text-blue-600" /> FACEBOOK
+                    </a>
+                    {appConfig.support && (
+                      <a href={`https://wa.me/${appConfig.support.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className={isDarkMode ? "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-zinc-800/20 border-zinc-800/40 text-amber-500 font-black uppercase italic text-[9px] transition-all active:scale-95" : "flex items-center gap-3 p-3.5 rounded-[1rem] border-2 bg-slate-50 border-slate-200 text-amber-600 font-black uppercase italic text-[9px] transition-all active:scale-95"}>
+                        <Phone size={16} className="text-amber-500" /> SUPORTE TÉCNICO
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                <button onClick={handleLogout} className={isDarkMode ? "mt-4 flex items-center justify-center gap-3 p-4 rounded-[1.2rem] border-2 bg-red-500/10 border-red-500/20 text-red-500 font-black uppercase italic active:scale-95 transition-all text-[10px]" : "mt-4 flex items-center justify-center gap-3 p-4 rounded-[1.2rem] border-2 bg-red-50 border-red-100 text-red-600 font-black uppercase italic active:scale-95 transition-all text-[10px]"}>
+                  <LogOut size={18} /> {t('logout')}
+                </button>
               </div>
             </div>
-            <button onClick={handleLogout} className={isDarkMode ? "mt-6 flex items-center justify-center gap-3 p-4 rounded-[1.2rem] border-2 bg-red-500/10 border-red-500/20 text-red-500 font-black uppercase italic active:scale-95 transition-all text-[10px]" : "mt-6 flex items-center justify-center gap-3 p-4 rounded-[1.2rem] border-2 bg-red-50 border-red-100 text-red-600 font-black uppercase italic active:scale-95 transition-all text-[10px]"}><LogOut size={18} /> {t('logout')}</button>
           </div>
         </div>
       )}
