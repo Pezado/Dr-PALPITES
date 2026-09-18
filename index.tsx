@@ -162,6 +162,35 @@ interface Ficha {
   date?: string;
 }
 
+interface CustomBetSelection {
+  market: string;
+  odds: number | string;
+  selection: string;
+}
+
+interface CustomBetMatch {
+  id?: string;
+  homeTeam: string;
+  awayTeam: string;
+  league?: string;
+  startTime?: string;
+  matchSubOdds?: number | string;
+  selections: CustomBetSelection[];
+}
+
+interface CustomBet {
+  id?: string;
+  title: string;
+  assertiveness?: number;
+  totalOdds: number | string;
+  suggestedStake?: string | number;
+  potentialWinnings?: string | number;
+  matches: CustomBetMatch[];
+  elephantBetId?: string;
+  premierBetId?: string;
+  bantuBetId?: string;
+}
+
 interface ChatMessage {
   id: string;
   uid: string;
@@ -289,7 +318,15 @@ const TRANSLATIONS: Record<Lang, any> = {
     historicoVazio: "AINDA NÃO HÁ REGISTOS DE VITÓRIA",
     vitoriaIA: "VITÓRIA IA",
     resultadoGanho: "RESULTADO: GANHO ✅",
-    motto: "Não aposta na sorte...aposta na ciência .!"
+    motto: "Não aposta na sorte...aposta na ciência .!",
+    combinacao: "Combinação",
+    construcao: "Construção",
+    combinacaoDesc: "Fichas clássicas onde cada partida possui uma única previsão selecionada com alto índice de assertividade.",
+    construcaoDesc: "Combinação especial avançada onde cada partida reúne múltiplas previsões complementares para alavancar a odd com maior segurança.",
+    customBetTag: "CONSTRUÇÃO IA",
+    emptyCustomBets: "SEM CONSTRUÇÕES PARA HOJE",
+    addCustomBetSlip: "ADICIONAR TODAS AO BOLETIM",
+    copyCustomBetSlip: "COPIAR PROGNÓSTICO"
   },
   en: {
     promoTitle: "WIN WITH THE ELITE",
@@ -387,7 +424,15 @@ const TRANSLATIONS: Record<Lang, any> = {
     historicoVazio: "NO WIN RECORDS YET",
     vitoriaIA: "AI WIN",
     resultadoGanho: "RESULT: WON ✅",
-    motto: "Don't bet on luck...bet on science.!"
+    motto: "Don't bet on luck...bet on science.!",
+    combinacao: "Combination",
+    construcao: "Custom Bet",
+    combinacaoDesc: "Classic accumulators where each match contains a single high-accuracy prediction.",
+    construcaoDesc: "Special accumulator combining matches with multiple strategic predictions per game to safely maximize odds.",
+    customBetTag: "AI CUSTOM BET",
+    emptyCustomBets: "NO CUSTOM BETS FOR TODAY",
+    addCustomBetSlip: "ADD ALL TO TICKET",
+    copyCustomBetSlip: "COPY SELECTIONS"
   },
   fr: {
     promoTitle: "GAGNEZ AVEC L'ÉLITE",
@@ -485,7 +530,15 @@ const TRANSLATIONS: Record<Lang, any> = {
     historicoVazio: "PAS ENCORE DE VICTOIRES",
     vitoriaIA: "VICTOIRE IA",
     resultadoGanho: "RÉSULTAT: GAGNÉ ✅",
-    motto: "Ne pariez pas sur la chance... pariez sur la science !"
+    motto: "Ne pariez pas sur la chance... pariez sur la science !",
+    combinacao: "Combinaison",
+    construcao: "Construction",
+    combinacaoDesc: "Fiches classiques où chaque match comprend un pronostic unique à haute assertivité.",
+    construcaoDesc: "Combinaison spéciale regroupant des matchs avec plusieurs pronostics par rencontre pour démultiplier la cote.",
+    customBetTag: "CONSTRUCTION IA",
+    emptyCustomBets: "AUCUNE CONSTRUCTION AUJOURD'HUI",
+    addCustomBetSlip: "AJOUTER AU TICKET",
+    copyCustomBetSlip: "COPIER LE TICKET"
   },
   es: {
     promoTitle: "GANA CON LA ÉLITE",
@@ -583,7 +636,15 @@ const TRANSLATIONS: Record<Lang, any> = {
     historicoVazio: "SIN REGISTROS DE VICTORIA",
     vitoriaIA: "VICTORIA IA",
     resultadoGanho: "RESULTADO: GANADO ✅",
-    motto: "¡No apuestes por la suerte... apuestes por la ciencia!"
+    motto: "¡No apuestes por la suerte... apuestes por la ciencia!",
+    combinacao: "Combinación",
+    construcao: "Construcción",
+    combinacaoDesc: "Fichas clásicas donde cada partido cuenta con un pronóstico único y asertivo.",
+    construcaoDesc: "Combinación especial avanzada donde cada partido reúne múltiples pronósticos coordinados para elevar la cuota con mayor seguridad.",
+    customBetTag: "CONSTRUCCIÓN IA",
+    emptyCustomBets: "SIN CONSTRUCCIONES PARA HOY",
+    addCustomBetSlip: "AÑADIR AL BOLETÍN",
+    copyCustomBetSlip: "COPIAR PRONÓSTICO"
   }
 };
 
@@ -730,6 +791,8 @@ const App: React.FC = () => {
   const [isReferralPanelOpen, setIsReferralPanelOpen] = useState(false);
   const [matches, setMatches] = useState<Match[]>([]);
   const [fichas, setFichas] = useState<Ficha[]>([]);
+  const [customBets, setCustomBets] = useState<CustomBet[]>([]);
+  const [fichasSubTab, setFichasSubTab] = useState<"combinacao" | "construcao">("combinacao");
   const [ganhos, setGanhos] = useState<Ficha[]>([]);
   const [betSlip, setBetSlip] = useState<any[]>([]);
   const [savedTickets, setSavedTickets] = useState<any[]>([]);
@@ -985,6 +1048,12 @@ const App: React.FC = () => {
       const stored = localStorage.getItem(`dr_tickets_${user.uid || user.username}`);
       if (stored) setSavedTickets(JSON.parse(stored));
       loadReferrals();
+
+      const predRef = ref(db, "predictions");
+      const unsubscribe = onValue(predRef, () => {
+        loadFirebaseData();
+      });
+      return () => unsubscribe();
     }
   }, [user, isAuthReady]);
 
@@ -1103,23 +1172,29 @@ const App: React.FC = () => {
       let selectedDateKey = todayKey;
       const predictions = predictionsSnap.exists() ? predictionsSnap.val() : {};
 
-      const todayHasMatches = predictions[todayKey] && predictions[todayKey].matches && Object.keys(predictions[todayKey].matches).length > 0;
+      const hasContent = (key: string) => {
+        const d = predictions[key];
+        if (!d) return false;
+        const hasMatches = d.matches && Object.keys(d.matches).length > 0;
+        const hasCustom = d.customBets && (Array.isArray(d.customBets) ? d.customBets.length > 0 : Object.keys(d.customBets).length > 0);
+        const hasFichas = (d.fichas && Object.keys(d.fichas).length > 0) || (d.accumulators && Object.keys(d.accumulators).length > 0);
+        return Boolean(hasMatches || hasCustom || hasFichas);
+      };
 
-      if (!todayHasMatches) {
-        // Find previous dates that have matches, sorted from newest to oldest
+      const todayHasData = hasContent(todayKey);
+
+      if (!todayHasData) {
+        // Find previous dates that have matches/data, sorted from newest to oldest
         const allKeys = Object.keys(predictions).sort((a, b) => b.localeCompare(a));
         const fallbackKey = allKeys.find(key => {
-          const hasMatches = predictions[key] && predictions[key].matches && Object.keys(predictions[key].matches).length > 0;
-          return hasMatches && key.localeCompare(todayKey) <= 0;
+          return hasContent(key) && key.localeCompare(todayKey) <= 0;
         });
 
         if (fallbackKey) {
           selectedDateKey = fallbackKey;
         } else {
           // Fallback to any latest date in the entire predictions node that has matches if no past matches exist
-          const anyValidKey = allKeys.find(key => {
-            return predictions[key] && predictions[key].matches && Object.keys(predictions[key].matches).length > 0;
-          });
+          const anyValidKey = allKeys.find(key => hasContent(key));
           if (anyValidKey) {
             selectedDateKey = anyValidKey;
           }
@@ -1144,10 +1219,36 @@ const App: React.FC = () => {
         }
       }
 
+      let loadedCustomBets: CustomBet[] = [];
+      const rawCustom = dateData.customBets;
+      if (rawCustom) {
+        if (Array.isArray(rawCustom)) {
+          loadedCustomBets = rawCustom.filter(Boolean);
+        } else if (typeof rawCustom === 'object') {
+          loadedCustomBets = Object.values(rawCustom).filter(Boolean) as CustomBet[];
+        }
+      }
+
+      // If selected date has no customBets, check all dates in predictions for the latest available
+      if (loadedCustomBets.length === 0) {
+        const allKeys = Object.keys(predictions).sort((a, b) => b.localeCompare(a));
+        for (const k of allKeys) {
+          if (predictions[k]?.customBets) {
+            const raw = predictions[k].customBets;
+            const parsed = Array.isArray(raw) ? raw.filter(Boolean) : (typeof raw === 'object' ? Object.values(raw).filter(Boolean) as CustomBet[] : []);
+            if (parsed.length > 0) {
+              loadedCustomBets = parsed;
+              break;
+            }
+          }
+        }
+      }
+
       const finalizedGanhos = ganhosSnap.exists() ? Object.values(ganhosSnap.val()) as Ficha[] : [];
 
       setMatches(aggregatedMatches);
       setFichas(combinedFichas);
+      setCustomBets(loadedCustomBets);
       setGanhos(finalizedGanhos.sort((a: any, b: any) => (b.date || 0) > (a.date || 0) ? 1 : -1));
     } catch (e) {
       console.error("Erro ao carregar dados:", e);
@@ -1365,6 +1466,55 @@ const App: React.FC = () => {
     navigator.clipboard.writeText(text).then(() => {
       addToast(t('copySuccess'));
     });
+  };
+
+  const copyCustomBet = (cb: CustomBet) => {
+    let text = `👑 DR PALPITES • ${cb.title.toUpperCase()}\n`;
+    text += `🎯 Assertividade: ${cb.assertiveness || 90}%\n`;
+    text += `🔥 Odd Total: @${typeof cb.totalOdds === 'number' ? cb.totalOdds.toFixed(2) : cb.totalOdds}\n`;
+    text += `💰 Sugestão: ${formatValueDisplay(cb.suggestedStake || 1000)} | Retorno: ${formatValueDisplay(cb.potentialWinnings || 0)}\n\n`;
+    
+    cb.matches.forEach((m, idx) => {
+      text += `⚽ Jogo ${idx + 1}: ${m.homeTeam} vs ${m.awayTeam} (${m.league || 'Liga'})\n`;
+      if (m.startTime) text += `⏰ Horário: ${m.startTime}\n`;
+      if (m.matchSubOdds) text += `📊 Sub-Odd Combinada: @${typeof m.matchSubOdds === 'number' ? m.matchSubOdds.toFixed(2) : m.matchSubOdds}\n`;
+      text += `Previsões da Partida:\n`;
+      m.selections?.forEach(s => {
+        text += `  • ${s.market}: ${s.selection} (@${typeof s.odds === 'number' ? s.odds.toFixed(2) : s.odds})\n`;
+      });
+      text += `\n`;
+    });
+
+    if (cb.elephantBetId) text += `Elephant Bet ID: ${cb.elephantBetId}\n`;
+    if (cb.premierBetId) text += `Premier Bet ID: ${cb.premierBetId}\n`;
+    if (cb.bantuBetId) text += `BantuBet ID: ${cb.bantuBetId}\n`;
+    text += `👉 https://dr-palpites.vercel.app/`;
+
+    copyToClipboard(text);
+  };
+
+  const handleAddCustomBetToSlip = (cb: CustomBet) => {
+    const newItems: any[] = [];
+    cb.matches.forEach(m => {
+      const matchName = `${m.homeTeam} vs ${m.awayTeam}`;
+      m.selections?.forEach(s => {
+        const tipId = `${m.homeTeam}-${m.awayTeam}-${s.market}-${s.selection}`;
+        newItems.push({
+          id: tipId,
+          matchName,
+          market: s.market,
+          selection: s.selection,
+          odds: typeof s.odds === 'number' ? s.odds : parseFloat(String(s.odds)) || 1.2
+        });
+      });
+    });
+
+    setBetSlip(prev => {
+      const existingIds = new Set(prev.map(i => i.id));
+      const filtered = newItems.filter(i => !existingIds.has(i.id));
+      return [...prev, ...filtered];
+    });
+    addToast(`${newItems.length} previsões adicionadas ao Boletim!`, "success");
   };
 
   const ageOptions = useMemo(() => {
@@ -1887,90 +2037,369 @@ const App: React.FC = () => {
 
         {activeTab === "acumulador" && (
           <section className="space-y-6 animate-in">
-             <div className="flex items-center gap-3 px-2">
-               <div className="bg-amber-500 p-2 rounded-xl shadow-md"><Layers size={20} className="text-black" /></div>
-               <h2 className={isDarkMode ? "text-lg font-black uppercase italic tracking-tighter drop-shadow-md text-white" : "text-lg font-black uppercase italic tracking-tighter drop-shadow-md text-slate-900"}>{t('fichas')}</h2>
+             <div className="flex items-center justify-between px-2">
+               <div className="flex items-center gap-3">
+                 <div className="bg-amber-500 p-2 rounded-xl shadow-md"><Layers size={20} className="text-black" /></div>
+                 <div>
+                   <h2 className={isDarkMode ? "text-lg font-black uppercase italic tracking-tighter drop-shadow-md text-white leading-none" : "text-lg font-black uppercase italic tracking-tighter drop-shadow-md text-slate-900 leading-none"}>{t('fichas')}</h2>
+                   <span className="text-[8px] font-black uppercase tracking-widest text-amber-500 italic mt-0.5 block">Previsões e Combinações Estratégicas</span>
+                 </div>
+               </div>
              </div>
+
+             {/* Linear Superior: Tab Switcher (Combinação | Construção) */}
+             <div className={isDarkMode ? "p-1.5 rounded-[2.2rem] bg-zinc-900/90 border-2 border-zinc-800 flex gap-1 shadow-xl backdrop-blur-md" : "p-1.5 rounded-[2.2rem] bg-slate-100 border-2 border-slate-200 flex gap-1 shadow-md"}>
+               <button 
+                 onClick={() => setFichasSubTab("combinacao")}
+                 className={`flex-1 py-3 px-4 rounded-[1.8rem] font-black uppercase italic text-[11px] tracking-wider transition-all flex items-center justify-center gap-2 ${
+                   fichasSubTab === "combinacao"
+                     ? "bg-amber-500 text-black shadow-lg scale-[1.01] border-b-2 border-amber-600"
+                     : isDarkMode ? "text-zinc-400 hover:text-white" : "text-slate-600 hover:text-slate-900"
+                 }`}
+               >
+                 <Layers size={16} />
+                 <span>{t('combinacao')}</span>
+               </button>
+
+               <button 
+                 onClick={() => setFichasSubTab("construcao")}
+                 className={`flex-1 py-3 px-4 rounded-[1.8rem] font-black uppercase italic text-[11px] tracking-wider transition-all flex items-center justify-center gap-2 relative ${
+                   fichasSubTab === "construcao"
+                     ? "bg-amber-500 text-black shadow-lg scale-[1.01] border-b-2 border-amber-600"
+                     : isDarkMode ? "text-zinc-400 hover:text-white" : "text-slate-600 hover:text-slate-900"
+                 }`}
+               >
+                 <Sparkles size={16} />
+                 <span>{t('construcao')}</span>
+                 <span className={`text-[8px] px-2 py-0.5 rounded-full font-black ${
+                   fichasSubTab === "construcao"
+                     ? "bg-black text-amber-400"
+                     : "bg-amber-500/20 text-amber-500 border border-amber-500/30"
+                 }`}>
+                   NOVO
+                 </span>
+               </button>
+             </div>
+
+             {/* Identificador da diferença entre combos e custom bet */}
+             {fichasSubTab === "combinacao" ? (
+               <div className={isDarkMode ? "p-4 rounded-[1.8rem] border-2 bg-zinc-900/60 border-zinc-800 flex items-center gap-3.5 shadow-md" : "p-4 rounded-[1.8rem] border-2 bg-slate-50 border-slate-200 flex items-center gap-3.5 shadow-sm"}>
+                 <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20 shrink-0">
+                   <Layers size={22} />
+                 </div>
+                 <div className="space-y-0.5">
+                   <div className="flex items-center gap-2">
+                     <h4 className="text-[11px] font-black uppercase text-amber-500 italic tracking-wider">Combinação Tradicional</h4>
+                     <span className="text-[8px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 font-black uppercase">1 Previsão / Jogo</span>
+                   </div>
+                   <p className={isDarkMode ? "text-[10px] font-bold text-zinc-400 uppercase italic leading-relaxed" : "text-[10px] font-bold text-slate-500 uppercase italic leading-relaxed"}>
+                     {t('combinacaoDesc')}
+                   </p>
+                 </div>
+               </div>
+             ) : (
+               <div className={isDarkMode ? "p-4 rounded-[1.8rem] border-2 bg-gradient-to-r from-amber-500/10 via-zinc-900/60 to-zinc-900/60 border-amber-500/30 flex items-center gap-3.5 shadow-md" : "p-4 rounded-[1.8rem] border-2 bg-gradient-to-r from-amber-50 via-white to-white border-amber-300 flex items-center gap-3.5 shadow-sm"}>
+                 <div className="p-3 rounded-2xl bg-amber-500 text-black shadow-md shrink-0">
+                   <Sparkles size={22} />
+                 </div>
+                 <div className="space-y-0.5">
+                   <div className="flex items-center gap-2">
+                     <h4 className="text-[11px] font-black uppercase text-amber-500 italic tracking-wider">Construção Especial (Custom Bet)</h4>
+                     <span className="text-[8px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-500 font-black uppercase border border-amber-500/30">Múltiplas Previsões / Jogo</span>
+                   </div>
+                   <p className={isDarkMode ? "text-[10px] font-bold text-zinc-300 uppercase italic leading-relaxed" : "text-[10px] font-bold text-slate-600 uppercase italic leading-relaxed"}>
+                     {t('construcaoDesc')}
+                   </p>
+                 </div>
+               </div>
+             )}
 
              <AdBanner isDarkMode={isDarkMode} />
 
-             {loading ? <div className="py-40 flex justify-center"><RefreshCw className="animate-spin text-amber-500" size={40} /></div> : (
-               fichas.length === 0 ? <div className={isDarkMode ? "py-40 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-40 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('vazio')}</div> : 
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 {fichas.map((a, i) => {
-                   const isLocked = i > 0 && !hasVipAccess;
+             {/* Conteúdo Dinâmico com base na Tab selecionada */}
+             {loading ? (
+               <div className="py-40 flex justify-center"><RefreshCw className="animate-spin text-amber-500" size={40} /></div>
+             ) : fichasSubTab === "combinacao" ? (
+               fichas.length === 0 ? (
+                 <div className={isDarkMode ? "py-40 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-40 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('vazio')}</div>
+               ) : (
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   {fichas.map((a, i) => {
+                     const isLocked = i > 0 && !hasVipAccess;
 
-                   if (isLocked) {
+                     if (isLocked) {
+                       return (
+                        <div key={i} className={isDarkMode ? "p-10 rounded-[3rem] border-4 flex flex-col items-center text-center space-y-6 shadow-2xl bg-zinc-900/80 border-zinc-800 backdrop-blur-xl" : "p-10 rounded-[3rem] border-4 flex flex-col items-center text-center space-y-6 shadow-2xl bg-slate-50 border-slate-200"}>
+                          <div className={isDarkMode ? "p-6 rounded-[2rem] border-4 relative shadow-xl bg-amber-500/10 border-amber-500/20" : "p-6 rounded-[2rem] border-4 relative shadow-xl bg-amber-50 border-amber-200"}>
+                            <LockKeyhole size={50} className="text-amber-500" />
+                            <Crown size={22} className="absolute -top-3 -right-3 text-amber-500 animate-bounce" />
+                          </div>
+                          <div className="space-y-3">
+                            <h3 className="text-xl font-black italic uppercase text-amber-500 leading-none tracking-tighter">{t('vipRestrictedTitle')}</h3>
+                            <p className={isDarkMode ? "text-[10px] font-black uppercase leading-relaxed italic px-2 text-white" : "text-[10px] font-black uppercase leading-relaxed italic px-2 text-slate-600"}>{t('vipRestrictedText')}</p>
+                          </div>
+                          <a href={`https://wa.me/${appConfig.support}?text=${encodeURIComponent(t('vipWhatsappMsg'))}`} target="_blank" className="w-full bg-emerald-500 text-black p-4 rounded-[1.5rem] font-black uppercase italic flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all text-[11px] tracking-tighter">
+                            <MessageCircle size={20} /> {t('talkToCeo')}
+                          </a>
+                        </div>
+                       );
+                     }
+
                      return (
-                      <div key={i} className={isDarkMode ? "p-10 rounded-[3rem] border-4 flex flex-col items-center text-center space-y-6 shadow-2xl bg-zinc-900/80 border-zinc-800 backdrop-blur-xl" : "p-10 rounded-[3rem] border-4 flex flex-col items-center text-center space-y-6 shadow-2xl bg-slate-50 border-slate-200"}>
-                        <div className={isDarkMode ? "p-6 rounded-[2rem] border-4 relative shadow-xl bg-amber-500/10 border-amber-500/20" : "p-6 rounded-[2rem] border-4 relative shadow-xl bg-amber-50 border-amber-200"}>
-                          <LockKeyhole size={50} className="text-amber-500" />
-                          <Crown size={22} className="absolute -top-3 -right-3 text-amber-500 animate-bounce" />
-                        </div>
-                        <div className="space-y-3">
-                          <h3 className="text-xl font-black italic uppercase text-amber-500 leading-none tracking-tighter">{t('vipRestrictedTitle')}</h3>
-                          <p className={isDarkMode ? "text-[10px] font-black uppercase leading-relaxed italic px-2 text-white" : "text-[10px] font-black uppercase leading-relaxed italic px-2 text-slate-600"}>{t('vipRestrictedText')}</p>
-                        </div>
-                        <a href={`https://wa.me/${appConfig.support}?text=${encodeURIComponent(t('vipWhatsappMsg'))}`} target="_blank" className="w-full bg-emerald-500 text-black p-4 rounded-[1.5rem] font-black uppercase italic flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all text-[11px] tracking-tighter">
-                          <MessageCircle size={20} /> {t('talkToCeo')}
-                        </a>
-                      </div>
-                     );
-                   }
-
-                   return (
-                     <div key={i} className={isDarkMode ? "p-1 rounded-[3rem] border-4 shadow-xl bg-zinc-900/60 border-zinc-800 transition-all hover:scale-[1.02]" : "p-1 rounded-[3rem] border-4 shadow-xl bg-white border-slate-200 transition-all hover:scale-[1.02]"}>
-                        <div className="p-6 space-y-5">
-                           <div className="flex justify-between items-start">
-                             <div className="space-y-1 border-l-4 border-amber-500 pl-3">
-                               <h3 className="text-[10px] font-black italic uppercase text-amber-500 tracking-[0.1em] leading-none">{i === 0 && !hasVipAccess ? t('publicAccumulator') : (a.type || 'ELITE IA')}</h3>
-                               <span className={isDarkMode ? "text-[8px] font-black uppercase block tracking-widest leading-none text-white/50" : "text-[8px] font-black uppercase block tracking-widest leading-none text-slate-400"}>{t('precisionAnalysis')}</span>
+                       <div key={i} className={isDarkMode ? "p-1 rounded-[3rem] border-4 shadow-xl bg-zinc-900/60 border-zinc-800 transition-all hover:scale-[1.02]" : "p-1 rounded-[3rem] border-4 shadow-xl bg-white border-slate-200 transition-all hover:scale-[1.02]"}>
+                          <div className="p-6 space-y-5">
+                             <div className="flex justify-between items-start">
+                               <div className="space-y-1 border-l-4 border-amber-500 pl-3">
+                                 <h3 className="text-[10px] font-black italic uppercase text-amber-500 tracking-[0.1em] leading-none">{i === 0 && !hasVipAccess ? t('publicAccumulator') : (a.type || 'ELITE IA')}</h3>
+                                 <span className={isDarkMode ? "text-[8px] font-black uppercase block tracking-widest leading-none text-white/50" : "text-[8px] font-black uppercase block tracking-widest leading-none text-slate-400"}>{t('precisionAnalysis')}</span>
+                               </div>
                              </div>
-                           </div>
-                           <div className={isDarkMode ? "grid grid-cols-2 gap-4 p-4 rounded-[1.5rem] border-2 bg-black/60 border-zinc-800/40" : "grid grid-cols-2 gap-4 p-4 rounded-[1.5rem] border-2 bg-slate-50 border-slate-200"}>
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2"><span className="text-[9px] font-black text-amber-500 italic">💰</span> <span className={isDarkMode ? "text-[9px] font-black uppercase tracking-tighter text-white" : "text-[9px] font-black uppercase tracking-tighter text-slate-700"}>{t('stake')}: {formatValueDisplay(a.stake || 0)}</span></div>
-                                <div className="flex items-center gap-2"><span className="text-[9px] font-black text-emerald-500 italic">⭐</span> <span className="text-[9px] font-black uppercase text-emerald-500 italic tracking-tighter leading-none">{t('totalWinnings')} : {formatValueDisplay(a.estimatedReturn || 0)}</span></div>
-                                <div className="flex items-center gap-2"><span className="text-[9px] font-black text-amber-500 italic">🚦</span> <span className="text-[9px] font-black uppercase text-amber-500 italic tracking-tighter leading-none">{a.assertiveness || '90'}% ASSERTIVO</span></div>
-                              </div>
-                              <div className={isDarkMode ? "flex flex-col items-end justify-center border-l-2 pl-3 border-zinc-800/50" : "flex flex-col items-end justify-center border-l-2 pl-3 border-slate-200"}>
-                                <span className="text-[8px] font-black uppercase text-amber-500/50 block mb-1 tracking-widest leading-none">{t('totalOdds')}</span>
-                                <span className="text-3xl font-black italic text-amber-500 tracking-tighter leading-none">@{typeof a.totalOdds === 'number' ? a.totalOdds.toFixed(2) : parseFloat(String(a.totalOdds || 0)).toFixed(2)}</span>
-                              </div>
-                           </div>
-                           <div className="grid grid-cols-1 gap-2">
-                              {[
-                                { label: 'ELEPHANT BET', id: a.elephantBetId },
-                                { label: 'PREMIER BET', id: a.premierBetId },
-                                { label: 'BANTUBET', id: a.bantuBetId }
-                              ].map(bookie => bookie.id && (
-                                <div key={bookie.label} className={isDarkMode ? "flex items-center justify-between p-3 rounded-xl border-2 bg-zinc-800/40 border-zinc-700/50" : "flex items-center justify-between p-3 rounded-xl border-2 bg-slate-100 border-slate-200"}>
-                                  <div className="flex flex-col">
-                                    <span className="text-[7px] font-black uppercase text-zinc-500">{bookie.label} ID</span>
-                                    <span className={isDarkMode ? "text-[11px] font-black italic text-white" : "text-[11px] font-black italic text-black"}>{bookie.id}</span>
+                             <div className={isDarkMode ? "grid grid-cols-2 gap-4 p-4 rounded-[1.5rem] border-2 bg-black/60 border-zinc-800/40" : "grid grid-cols-2 gap-4 p-4 rounded-[1.5rem] border-2 bg-slate-50 border-slate-200"}>
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-2"><span className="text-[9px] font-black text-amber-500 italic">💰</span> <span className={isDarkMode ? "text-[9px] font-black uppercase tracking-tighter text-white" : "text-[9px] font-black uppercase tracking-tighter text-slate-700"}>{t('stake')}: {formatValueDisplay(a.stake || 0)}</span></div>
+                                  <div className="flex items-center gap-2"><span className="text-[9px] font-black text-emerald-500 italic">⭐</span> <span className="text-[9px] font-black uppercase text-emerald-500 italic tracking-tighter leading-none">{t('totalWinnings')} : {formatValueDisplay(a.estimatedReturn || 0)}</span></div>
+                                  <div className="flex items-center gap-2"><span className="text-[9px] font-black text-amber-500 italic">🚦</span> <span className="text-[9px] font-black uppercase text-amber-500 italic tracking-tighter leading-none">{a.assertiveness || '90'}% ASSERTIVO</span></div>
+                                </div>
+                                <div className={isDarkMode ? "flex flex-col items-end justify-center border-l-2 pl-3 border-zinc-800/50" : "flex flex-col items-end justify-center border-l-2 pl-3 border-slate-200"}>
+                                  <span className="text-[8px] font-black uppercase text-amber-500/50 block mb-1 tracking-widest leading-none">{t('totalOdds')}</span>
+                                  <span className="text-3xl font-black italic text-amber-500 tracking-tighter leading-none">@{typeof a.totalOdds === 'number' ? a.totalOdds.toFixed(2) : parseFloat(String(a.totalOdds || 0)).toFixed(2)}</span>
+                                </div>
+                             </div>
+                             <div className="grid grid-cols-1 gap-2">
+                                {[
+                                  { label: 'ELEPHANT BET', id: a.elephantBetId },
+                                  { label: 'PREMIER BET', id: a.premierBetId },
+                                  { label: 'BANTUBET', id: a.bantuBetId }
+                                ].map(bookie => bookie.id && (
+                                  <div key={bookie.label} className={isDarkMode ? "flex items-center justify-between p-3 rounded-xl border-2 bg-zinc-800/40 border-zinc-700/50" : "flex items-center justify-between p-3 rounded-xl border-2 bg-slate-100 border-slate-200"}>
+                                    <div className="flex flex-col">
+                                      <span className="text-[7px] font-black uppercase text-zinc-500">{bookie.label} ID</span>
+                                      <span className={isDarkMode ? "text-[11px] font-black italic text-white" : "text-[11px] font-black italic text-black"}>{bookie.id}</span>
+                                    </div>
+                                    <button onClick={() => copyToClipboard(bookie.id!)} className="p-2 bg-amber-500 text-black rounded-lg active:scale-90 transition-all"><ClipboardCheck size={16} /></button>
                                   </div>
-                                  <button onClick={() => copyToClipboard(bookie.id!)} className="p-2 bg-amber-500 text-black rounded-lg active:scale-90 transition-all"><ClipboardCheck size={16} /></button>
-                                </div>
-                              ))}
+                                ))}
+                             </div>
+                             <div className="space-y-4 pt-1">
+                                {a.selections.map((s, idx) => (
+                                  <div key={idx} className={isDarkMode ? "space-y-1 relative pb-4 border-b-2 last:border-0 last:pb-0 border-zinc-800/40" : "space-y-1 relative pb-4 border-b-2 last:border-0 last:pb-0 border-slate-100"}>
+                                     <h4 className={isDarkMode ? "text-[11px] font-black uppercase italic tracking-tighter leading-tight text-white" : "text-[11px] font-black uppercase italic tracking-tighter leading-tight text-slate-900"}>{s.teams}</h4>
+                                     <div className="flex items-center gap-2">
+                                        <span className={isDarkMode ? "text-[10px] font-black uppercase italic tracking-tighter text-white" : "text-[10px] font-black uppercase italic tracking-tighter text-slate-600"}>
+                                          {s.market}: <span className="text-amber-500">{cleanSelectionText(s.market, s.selection)}</span> 
+                                          <span className={isDarkMode ? "ml-2 text-[9px] text-white/50" : "ml-2 text-[9px] text-slate-400"}>@{parseFloat(s.odds || 0).toFixed(2)}</span>
+                                        </span>
+                                     </div>
+                                  </div>
+                                ))}
+                             </div>
+                          </div>
+                       </div>
+                     );
+                   })}
+                 </div>
+               )
+             ) : (
+               /* FichasSubTab === "construcao" (Custom Bets) */
+               customBets.length === 0 ? (
+                 <div className={isDarkMode ? "py-40 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-40 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>
+                   {t('emptyCustomBets')}
+                 </div>
+               ) : (
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   {customBets.map((cb, i) => {
+                     const isLocked = i > 0 && !hasVipAccess && !unlockedMatches.includes(cb.id || `cb_${i}`);
+                     const totalSelections = cb.matches?.reduce((sum, m) => sum + (m.selections?.length || 0), 0) || 0;
+
+                     if (isLocked) {
+                       return (
+                         <div key={cb.id || i} className={isDarkMode ? "p-8 rounded-[3rem] border-4 flex flex-col items-center text-center space-y-6 shadow-2xl bg-zinc-900/80 border-zinc-800 backdrop-blur-xl" : "p-8 rounded-[3rem] border-4 flex flex-col items-center text-center space-y-6 shadow-2xl bg-slate-50 border-slate-200"}>
+                           <div className={isDarkMode ? "p-6 rounded-[2rem] border-4 relative shadow-xl bg-amber-500/10 border-amber-500/20" : "p-6 rounded-[2rem] border-4 relative shadow-xl bg-amber-50 border-amber-200"}>
+                             <LockKeyhole size={50} className="text-amber-500" />
+                             <Crown size={22} className="absolute -top-3 -right-3 text-amber-500 animate-bounce" />
                            </div>
-                           <div className="space-y-4 pt-1">
-                              {a.selections.map((s, idx) => (
-                                <div key={idx} className={isDarkMode ? "space-y-1 relative pb-4 border-b-2 last:border-0 last:pb-0 border-zinc-800/40" : "space-y-1 relative pb-4 border-b-2 last:border-0 last:pb-0 border-slate-100"}>
-                                   <h4 className={isDarkMode ? "text-[11px] font-black uppercase italic tracking-tighter leading-tight text-white" : "text-[11px] font-black uppercase italic tracking-tighter leading-tight text-slate-900"}>{s.teams}</h4>
-                                   <div className="flex items-center gap-2">
-                                      <span className={isDarkMode ? "text-[10px] font-black uppercase italic tracking-tighter text-white" : "text-[10px] font-black uppercase italic tracking-tighter text-slate-600"}>
-                                        {s.market}: <span className="text-amber-500">{cleanSelectionText(s.market, s.selection)}</span> 
-                                        <span className={isDarkMode ? "ml-2 text-[9px] text-white/50" : "ml-2 text-[9px] text-slate-400"}>@{parseFloat(s.odds || 0).toFixed(2)}</span>
-                                      </span>
-                                   </div>
-                                </div>
-                              ))}
+                           <div className="space-y-2">
+                             <div className="flex items-center justify-center gap-2">
+                               <span className="text-[9px] font-black uppercase text-amber-500 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+                                 CONSTRUÇÃO VIP • ODD @{typeof cb.totalOdds === 'number' ? cb.totalOdds.toFixed(2) : parseFloat(String(cb.totalOdds || 0)).toFixed(2)}
+                               </span>
+                             </div>
+                             <h3 className={isDarkMode ? "text-xl font-black italic uppercase text-white leading-tight tracking-tight" : "text-xl font-black italic uppercase text-slate-900 leading-tight tracking-tight"}>
+                               {cb.title}
+                             </h3>
+                             <p className={isDarkMode ? "text-[10px] font-bold uppercase leading-relaxed italic px-2 text-zinc-400" : "text-[10px] font-bold uppercase leading-relaxed italic px-2 text-slate-600"}>
+                               {cb.matches?.length || 0} jogos combinados com múltiplas previsões por partida. Liberte agora!
+                             </p>
                            </div>
-                        </div>
-                     </div>
-                   );
-                 })}
-               </div>
+
+                           <div className="w-full space-y-2.5">
+                             <button 
+                               onClick={() => startAdPlayback("match", cb.id || `cb_${i}`)}
+                               className="w-full bg-amber-500 hover:bg-amber-400 text-black p-4 rounded-[1.5rem] font-black uppercase italic flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all text-[11px] tracking-tight border-b-4 border-amber-600"
+                             >
+                               🔓 DESBLOQUEAR GRÁTIS (VER ANÚNCIO)
+                             </button>
+                             <a 
+                               href={appConfig.loja}
+                               target="_blank" 
+                               className={isDarkMode ? "w-full bg-zinc-950 hover:bg-zinc-900 text-amber-500 border-2 border-amber-500/30 p-4 rounded-[1.5rem] font-black uppercase italic flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all text-[11px] tracking-tight" : "w-full bg-white hover:bg-slate-100 text-amber-600 border-2 border-amber-300 p-4 rounded-[1.5rem] font-black uppercase italic flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all text-[11px] tracking-tight"}
+                             >
+                               <Crown size={15} /> TORNAR-SE MEMBRO VIP
+                             </a>
+                           </div>
+                         </div>
+                       );
+                     }
+
+                     return (
+                       <div key={cb.id || i} className={isDarkMode ? "p-1 rounded-[3rem] border-4 shadow-xl bg-zinc-900/60 border-zinc-800 transition-all hover:scale-[1.01]" : "p-1 rounded-[3rem] border-4 shadow-xl bg-white border-slate-200 transition-all hover:scale-[1.01]"}>
+                          <div className="p-6 space-y-5">
+                             {/* Card Header */}
+                             <div className="flex justify-between items-start gap-2">
+                               <div className="space-y-1 border-l-4 border-amber-500 pl-3">
+                                 <div className="flex items-center gap-2">
+                                   <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-500 text-black">
+                                     {t('customBetTag')}
+                                   </span>
+                                   <span className="text-[8px] font-black uppercase tracking-wider text-amber-500">
+                                     {cb.matches?.length} PARTIDAS • {totalSelections} PREVISÕES
+                                   </span>
+                                 </div>
+                                 <h3 className={isDarkMode ? "text-[13px] font-black italic uppercase text-white tracking-tight leading-snug" : "text-[13px] font-black italic uppercase text-slate-900 tracking-tight leading-snug"}>
+                                   {cb.title}
+                                 </h3>
+                               </div>
+                               <span className="text-[9px] font-black uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full shrink-0">
+                                 {cb.assertiveness || 90}% ASSERTIVO
+                               </span>
+                             </div>
+
+                             {/* Metrics box */}
+                             <div className={isDarkMode ? "grid grid-cols-2 gap-4 p-4 rounded-[1.5rem] border-2 bg-black/60 border-zinc-800/40" : "grid grid-cols-2 gap-4 p-4 rounded-[1.5rem] border-2 bg-slate-50 border-slate-200"}>
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[9px] font-black text-amber-500 italic">💰</span>
+                                    <span className={isDarkMode ? "text-[9px] font-black uppercase tracking-tighter text-white" : "text-[9px] font-black uppercase tracking-tighter text-slate-700"}>
+                                      {t('stake')}: {formatValueDisplay(cb.suggestedStake || 1000)}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[9px] font-black text-emerald-500 italic">⭐</span>
+                                    <span className="text-[9px] font-black uppercase text-emerald-500 italic tracking-tighter leading-none">
+                                      {t('totalWinnings')}: {formatValueDisplay(cb.potentialWinnings || 0)}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[9px] font-black text-amber-500 italic">⚡</span>
+                                    <span className="text-[9px] font-black uppercase text-amber-500 italic tracking-tighter leading-none">
+                                      {cb.matches?.length} JOGOS COMBINADOS
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className={isDarkMode ? "flex flex-col items-end justify-center border-l-2 pl-3 border-zinc-800/50" : "flex flex-col items-end justify-center border-l-2 pl-3 border-slate-200"}>
+                                  <span className="text-[8px] font-black uppercase text-amber-500/50 block mb-1 tracking-widest leading-none">{t('totalOdds')}</span>
+                                  <span className="text-3xl font-black italic text-amber-500 tracking-tighter leading-none">
+                                    @{typeof cb.totalOdds === 'number' ? cb.totalOdds.toFixed(2) : parseFloat(String(cb.totalOdds || 0)).toFixed(2)}
+                                  </span>
+                                </div>
+                             </div>
+
+                             {/* Bookmaker IDs if available */}
+                             <div className="grid grid-cols-1 gap-2">
+                                {[
+                                  { label: 'ELEPHANT BET', id: cb.elephantBetId },
+                                  { label: 'PREMIER BET', id: cb.premierBetId },
+                                  { label: 'BANTUBET', id: cb.bantuBetId }
+                                ].map(bookie => bookie.id && (
+                                  <div key={bookie.label} className={isDarkMode ? "flex items-center justify-between p-3 rounded-xl border-2 bg-zinc-800/40 border-zinc-700/50" : "flex items-center justify-between p-3 rounded-xl border-2 bg-slate-100 border-slate-200"}>
+                                    <div className="flex flex-col">
+                                      <span className="text-[7px] font-black uppercase text-zinc-500">{bookie.label} ID</span>
+                                      <span className={isDarkMode ? "text-[11px] font-black italic text-white" : "text-[11px] font-black italic text-black"}>{bookie.id}</span>
+                                    </div>
+                                    <button onClick={() => copyToClipboard(bookie.id!)} className="p-2 bg-amber-500 text-black rounded-lg active:scale-90 transition-all"><ClipboardCheck size={16} /></button>
+                                  </div>
+                                ))}
+                             </div>
+
+                             {/* Matches list with multiple selections */}
+                             <div className="space-y-3 pt-1">
+                                {cb.matches?.map((m, mIdx) => (
+                                  <div key={m.id || mIdx} className={isDarkMode ? "p-4 rounded-[1.6rem] border-2 bg-black/40 border-zinc-800/70 space-y-2.5 shadow-sm" : "p-4 rounded-[1.6rem] border-2 bg-slate-50 border-slate-200 space-y-2.5 shadow-sm"}>
+                                     {/* Match Header */}
+                                     <div className="flex items-center justify-between border-b border-zinc-800/50 pb-2">
+                                       <div className="flex items-center gap-2">
+                                         <span className="text-[8px] font-black uppercase text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                                           {m.league || "LIGA"}
+                                         </span>
+                                         {m.startTime && (
+                                           <span className={isDarkMode ? "text-[8px] font-black text-zinc-400 flex items-center gap-1" : "text-[8px] font-black text-slate-500 flex items-center gap-1"}>
+                                             <Clock size={10} /> {m.startTime}
+                                           </span>
+                                         )}
+                                       </div>
+                                       {m.matchSubOdds && (
+                                         <div className="flex items-center gap-1.5">
+                                           <span className="text-[8px] font-black uppercase text-zinc-500">Sub-Odd:</span>
+                                           <span className="text-[11px] font-black italic text-amber-500">
+                                             @{typeof m.matchSubOdds === 'number' ? m.matchSubOdds.toFixed(2) : parseFloat(String(m.matchSubOdds)).toFixed(2)}
+                                           </span>
+                                         </div>
+                                       )}
+                                     </div>
+
+                                     {/* Teams Title */}
+                                     <h4 className={isDarkMode ? "text-[12px] font-black uppercase italic tracking-tight text-white leading-tight" : "text-[12px] font-black uppercase italic tracking-tight text-slate-900 leading-tight"}>
+                                       {m.homeTeam} <span className="text-amber-500/70 font-normal">vs</span> {m.awayTeam}
+                                     </h4>
+
+                                     {/* Multi-selections list */}
+                                     <div className="space-y-1.5 pt-1">
+                                       {m.selections?.map((s, sIdx) => (
+                                         <div key={sIdx} className={isDarkMode ? "flex items-center justify-between p-2 rounded-xl bg-zinc-900/90 border border-zinc-800/70" : "flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200"}>
+                                            <div className="flex items-start gap-2 flex-1 pr-2">
+                                               <span className="text-[9px] text-amber-500 mt-0.5">✦</span>
+                                               <div>
+                                                  <span className="text-[8px] font-black uppercase tracking-wider text-zinc-400 block leading-tight">
+                                                    {s.market}
+                                                  </span>
+                                                  <span className={isDarkMode ? "text-[10px] font-black uppercase italic text-white leading-tight" : "text-[10px] font-black uppercase italic text-slate-900 leading-tight"}>
+                                                    {cleanSelectionText(s.market, s.selection)}
+                                                  </span>
+                                               </div>
+                                            </div>
+                                            <span className="text-[11px] font-black italic text-amber-500 tracking-tight shrink-0">
+                                              @{typeof s.odds === 'number' ? s.odds.toFixed(2) : parseFloat(String(s.odds || 0)).toFixed(2)}
+                                            </span>
+                                         </div>
+                                       ))}
+                                     </div>
+                                  </div>
+                                ))}
+                             </div>
+
+                             {/* Bottom Action Buttons */}
+                             <div className="grid grid-cols-2 gap-3 pt-2">
+                                <button 
+                                  onClick={() => handleAddCustomBetToSlip(cb)}
+                                  className="w-full bg-amber-500 hover:bg-amber-400 text-black py-3.5 px-3 rounded-[1.3rem] font-black uppercase italic text-[10px] flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all border-b-2 border-amber-600"
+                                >
+                                  <Ticket size={15} />
+                                  <span>{t('addCustomBetSlip')}</span>
+                                </button>
+                                <button 
+                                  onClick={() => copyCustomBet(cb)}
+                                  className={isDarkMode ? "w-full bg-zinc-800 hover:bg-zinc-700 text-white py-3.5 px-3 rounded-[1.3rem] font-black uppercase italic text-[10px] flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all border border-zinc-700" : "w-full bg-slate-100 hover:bg-slate-200 text-slate-800 py-3.5 px-3 rounded-[1.3rem] font-black uppercase italic text-[10px] flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all border border-slate-300"}
+                                >
+                                  <Copy size={15} />
+                                  <span>{t('copyCustomBetSlip')}</span>
+                                </button>
+                             </div>
+                          </div>
+                       </div>
+                     );
+                   })}
+                 </div>
+               )
              )}
           </section>
         )}
