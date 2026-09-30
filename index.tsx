@@ -195,15 +195,6 @@ interface CustomBet {
   bantuBetId?: string;
 }
 
-interface ChatMessage {
-  id: string;
-  uid: string;
-  username: string;
-  text: string;
-  timestamp: number;
-  profilePic?: string;
-}
-
 interface Referral {
   uid: string;
   username: string;
@@ -296,10 +287,6 @@ const TRANSLATIONS: Record<Lang, any> = {
     comboElite: "FICHAS ELITE",
     precisionAnalysis: "ANÁLISE DE PRECISÃO",
     totalOdds: "ODD TOTAL",
-    chat: "Chat",
-    sendMessage: "Enviar",
-    typeMessage: "Escreva algo...",
-    noMessages: "Nenhuma mensagem ainda.",
     footerInfo: "Temos IDs prontos para todas as casas e palpites de empate no VIP!",
     profilePic: "Foto de Perfil",
     addComment: "Comentar...",
@@ -402,10 +389,6 @@ const TRANSLATIONS: Record<Lang, any> = {
     comboElite: "ELITE FICHAS",
     precisionAnalysis: "PRECISION ANALYSIS",
     totalOdds: "TOTAL ODD",
-    chat: "Chat",
-    sendMessage: "Send",
-    typeMessage: "Type something...",
-    noMessages: "No messages yet.",
     footerInfo: "Ready IDs for all bookies and Draw tips in VIP!",
     profilePic: "Profile Picture",
     addComment: "Comment...",
@@ -508,10 +491,6 @@ const TRANSLATIONS: Record<Lang, any> = {
     comboElite: "ELITE",
     precisionAnalysis: "ANALYSE",
     totalOdds: "COTE",
-    chat: "Chat",
-    sendMessage: "Envoyer",
-    typeMessage: "Message...",
-    noMessages: "Pas de messages.",
     footerInfo: "ID pour tous les bookmakers !",
     profilePic: "Photo",
     addComment: "Commenter...",
@@ -614,10 +593,6 @@ const TRANSLATIONS: Record<Lang, any> = {
     comboElite: "ELITE",
     precisionAnalysis: "ANÁLISIS",
     totalOdds: "CUOTA",
-    chat: "Chat",
-    sendMessage: "Enviar",
-    typeMessage: "Mensaje...",
-    noMessages: "Sin mensajes.",
     footerInfo: "IDs para todas las casas !",
     profilePic: "Foto",
     addComment: "Comentar...",
@@ -867,7 +842,7 @@ const App: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [lang, setLang] = useState<Lang>('pt');
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [activeTab, setActiveTab] = useState<"hoje" | "acumulador" | "historico" | "boletim" | "guardados" | "chat">("hoje");
+  const [activeTab, setActiveTab] = useState<"hoje" | "acumulador" | "historico" | "boletim" | "guardados">("hoje");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isReferralPanelOpen, setIsReferralPanelOpen] = useState(false);
   const [matches, setMatches] = useState<Match[]>([]);
@@ -881,10 +856,7 @@ const App: React.FC = () => {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [manualStake, setManualStake] = useState<string>("1000");
   const [activeAlert, setActiveAlert] = useState<AlertData | null>(null);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [chatInput, setChatInput] = useState("");
   const [referrals, setReferrals] = useState<Referral[]>([]);
-  const chatEndRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState({
     username: "", country: "", customCountry: "", password: "", confirmPassword: "", phone: "", province: "", age: "", profilePic: "", referralCode: ""
@@ -1101,30 +1073,6 @@ const App: React.FC = () => {
     }
   }, [user, isAuthReady]);
 
-  useEffect(() => {
-    if (activeTab === 'chat' && isAuthReady) {
-      const chatRef = ref(db, "chat");
-      const unsubscribe = onValue(chatRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          const msgs = Object.keys(data).map(key => ({ ...data[key], id: key } as ChatMessage));
-          setChatMessages(msgs.sort((a, b) => a.timestamp - b.timestamp).slice(-50));
-        } else {
-          setChatMessages([]);
-        }
-      });
-      return () => unsubscribe();
-    }
-  }, [activeTab, isAuthReady]);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessages]);
-
-  const loadChat = async () => {
-    // Carregado via onValue no useEffect
-  };
-
   const loadReferrals = async () => {
     if (!user) return;
     try {
@@ -1184,23 +1132,6 @@ const App: React.FC = () => {
       console.error("Erro ao resgatar VIP:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSendMessage = async () => {
-    if (!chatInput.trim() || !user) return;
-    const msg: Partial<ChatMessage> = {
-      uid: user.uid,
-      username: user.username,
-      text: chatInput,
-      timestamp: Date.now(),
-      profilePic: user.profilePic
-    };
-    setChatInput("");
-    try {
-      await push(ref(db, "chat"), msg);
-    } catch (error) {
-      console.error("Erro ao enviar mensagem:", error);
     }
   };
 
@@ -1874,7 +1805,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={isDarkMode ? `min-h-screen bg-[#020617] text-white ${activeTab === 'chat' ? 'h-screen overflow-hidden pb-0' : 'pb-28'} transition-colors duration-300` : `min-h-screen bg-white text-slate-900 ${activeTab === 'chat' ? 'h-screen overflow-hidden pb-0' : 'pb-28'} transition-colors duration-300`}>
+    <div className={isDarkMode ? "min-h-screen bg-[#020617] text-white pb-28 transition-colors duration-300" : "min-h-screen bg-white text-slate-900 pb-28 transition-colors duration-300"}>
 
       {/* Modal Acesso VIP Liberado (Modo Aberto) */}
       {showModoAbertoModal && isLiberadoActive && (
@@ -2130,7 +2061,7 @@ const App: React.FC = () => {
         </a>
       )}
 
-      <main className={activeTab === 'chat' ? (hasVipAccess ? "max-w-md mx-auto p-4 h-[calc(100vh-140px)] flex flex-col space-y-0 overflow-hidden" : "max-w-md mx-auto p-4 h-[calc(100vh-180px)] flex flex-col space-y-0 overflow-hidden") : "max-w-md mx-auto p-4 space-y-5"}>
+      <main className="max-w-md mx-auto p-4 space-y-5">
         {activeTab === "hoje" && (
           <section className="space-y-5 animate-in">
             <div className="flex justify-between items-start px-1">
@@ -2757,72 +2688,12 @@ const App: React.FC = () => {
                       </div>
                       <div className={isDarkMode ? "p-3 rounded-xl border-2 bg-emerald-500/5 border-emerald-500/20" : "p-3 rounded-xl border-2 bg-emerald-50 border-emerald-100"}>
                         <span className={isDarkMode ? "text-[8px] font-black uppercase block opacity-50 text-white" : "text-[8px] font-black uppercase block opacity-50 text-slate-600"}>{t('totalWinnings').toUpperCase()}</span>
-                        <span className="text-sm font-black text-emerald-500">{tkt.winnings || '0'}</span>
+                         <span className="text-sm font-black text-emerald-500">{tkt.winnings || '0'}</span>
                       </div>
                     </div>
                  </div>
                ))
              }
-          </section>
-        )}
-
-        {activeTab === "chat" && (
-          <section className="animate-in flex flex-col h-full overflow-hidden">
-            <h3 className={isDarkMode ? "text-xl font-black italic uppercase px-3 tracking-tighter mb-4 shrink-0 leading-none text-white" : "text-xl font-black italic uppercase px-3 tracking-tighter mb-4 shrink-0 leading-none text-slate-900"}>{t('chat')}</h3>
-            <div className={isDarkMode ? "flex-1 overflow-y-auto p-5 space-y-5 rounded-[2.5rem] border-4 bg-zinc-900/60 border-zinc-800 shadow-inner shadow-black/40" : "flex-1 overflow-y-auto p-5 space-y-5 rounded-[2.5rem] border-4 bg-slate-50 border-slate-200 shadow-inner"}>
-              {chatMessages.length === 0 ? <div className="text-center py-40 text-[10px] uppercase font-black opacity-30">{t('noMessages')}</div> :
-                chatMessages.map((msg, i) => {
-                  const msgDate = new Date(msg.timestamp).toLocaleDateString('pt-AO');
-                  const prevMsgDate = i > 0 ? new Date(chatMessages[i - 1].timestamp).toLocaleDateString('pt-AO') : null;
-                  const showDateSeparator = msgDate !== prevMsgDate;
-                  const timeStr = new Date(msg.timestamp).toLocaleTimeString('pt-AO', { hour: '2-digit', minute: '2-digit' });
-
-                  return (
-                    <React.Fragment key={msg.id}>
-                      {showDateSeparator && (
-                        <div className="flex justify-center my-4">
-                          <span className="text-[8px] bg-zinc-800/50 text-zinc-400 px-4 py-1 rounded-full uppercase font-black tracking-widest border border-zinc-700/30">
-                            {msgDate}
-                          </span>
-                        </div>
-                      )}
-                      <div className={`flex gap-4 ${msg.uid === user.uid ? 'flex-row-reverse' : ''} animate-in`}>
-                        <div className="w-10 h-10 rounded-full border-2 border-amber-500 overflow-hidden shrink-0 shadow-xl bg-black">
-                          {msg.profilePic ? (
-                            <img src={msg.profilePic} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-zinc-900">
-                              <User size={20} className="text-zinc-600" />
-                            </div>
-                          )}
-                        </div>
-                        <div className={`max-w-[80%] space-y-1 ${msg.uid === user.uid ? 'text-right' : 'text-left'}`}>
-                          <div className={`flex items-center gap-2 ${msg.uid === user.uid ? 'flex-row-reverse' : ''}`}>
-                            <p className="text-[9px] font-black text-amber-500 uppercase tracking-tighter">{msg.username}</p>
-                            <span className="text-[7px] text-zinc-500 font-bold">{timeStr}</span>
-                          </div>
-                          <div className={`p-4 rounded-[1.5rem] text-[12px] font-bold leading-relaxed shadow-lg ${msg.uid === user.uid ? 'bg-amber-500 text-black rounded-tr-none' : (isDarkMode ? 'bg-zinc-800 text-white rounded-tl-none border border-zinc-700' : 'bg-white text-slate-900 rounded-tl-none border border-slate-100')}`}>
-                            {msg.text}
-                          </div>
-                        </div>
-                      </div>
-                    </React.Fragment>
-                  );
-                })
-              }
-              <div ref={chatEndRef} />
-            </div>
-            <div className="mt-4 flex gap-3 pb-24 shrink-0">
-               <input 
-                 type="text" 
-                 value={chatInput} 
-                 onChange={e => setChatInput(e.target.value)} 
-                 onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
-                 placeholder={t('typeMessage')}
-                 className={isDarkMode ? "flex-1 p-5 rounded-[1.8rem] font-black text-[13px] border-4 focus:border-amber-500 transition-all bg-zinc-900 border-zinc-800 text-white" : "flex-1 p-5 rounded-[1.8rem] font-black text-[13px] border-4 focus:border-amber-500 transition-all bg-white border-slate-200 text-slate-900 shadow-md"} 
-               />
-               <button onClick={handleSendMessage} className="bg-amber-500 text-black px-6 rounded-[1.8rem] shadow-xl active:scale-90 transition-all flex items-center justify-center shrink-0"><Send size={28} /></button>
-            </div>
           </section>
         )}
       </main>
@@ -2832,7 +2703,6 @@ const App: React.FC = () => {
           { id: 'hoje', icon: LayoutDashboard, label: t('palpites') },
           { id: 'acumulador', icon: Layers, label: t('fichas') },
           { id: 'historico', icon: Trophy, label: t('historico') },
-          { id: 'chat', icon: MessageCircle, label: t('chat') },
           { id: 'boletim', icon: Ticket, label: t('boletim'), count: betSlip.length },
           { id: 'guardados', icon: Save, label: t('guardados') }
         ].map(tab => (
