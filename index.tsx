@@ -716,35 +716,6 @@ const formatNumberWithDots = (num: number): string => {
   return Math.floor(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
 
-// --- Componente de Anúncio Adcash ---
-const AdBanner = ({ isDarkMode }: { isDarkMode: boolean }) => {
-  const handleAdClick = () => {
-    try {
-      if (typeof (window as any).aclib !== 'undefined' && (window as any).aclib.runAutoTag) {
-        (window as any).aclib.runAutoTag({ zoneId: 'ggynhemder' });
-      }
-    } catch (e) {
-      console.warn("Adcash click trigger:", e);
-    }
-  };
-
-  return (
-    <div 
-      onClick={handleAdClick}
-      className={isDarkMode ? "my-4 p-4 rounded-[1.8rem] border-4 flex flex-col items-center justify-center relative overflow-hidden shadow-md min-h-[90px] bg-zinc-900/40 border-zinc-800 cursor-pointer hover:border-amber-500/30 transition-all" : "my-4 p-4 rounded-[1.8rem] border-4 flex flex-col items-center justify-center relative overflow-hidden shadow-md min-h-[90px] bg-slate-50 border-slate-200 cursor-pointer hover:border-amber-500/30 transition-all"}
-    >
-      <span className="absolute top-1.5 right-3 text-[7px] font-black tracking-widest text-zinc-500 uppercase italic">Anúncio Adcash</span>
-      <div className="w-full flex flex-col items-center justify-center text-center py-2 px-3">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-          <span className="text-[11px] font-black uppercase text-amber-500 tracking-wider">Patrocinador Oficial • Melhores Odds</span>
-        </div>
-        <p className="text-[9px] font-black uppercase text-zinc-400">Clique para conferir as melhores promoções e bónus em apostas</p>
-      </div>
-    </div>
-  );
-};
-
 const getFirebaseKey = () => {
   const now = new Date();
   const year = now.getFullYear();
@@ -978,111 +949,6 @@ const App: React.FC = () => {
     const claimed = user.claimedInvites || 0;
     return Math.max(0, total - claimed);
   }, [user, referrals]);
-
-  // --- Adcash Offerwall / Rewarded Video States ---
-  const [normalModeUnlockedUntil, setNormalModeUnlockedUntil] = useState<number>(() => {
-    return parseInt(localStorage.getItem("dr_normal_mode_unlocked_until") || "0", 10);
-  });
-  const [unlockedMatches, setUnlockedMatches] = useState<string[]>(() => {
-    try {
-      return JSON.parse(localStorage.getItem("dr_unlocked_matches") || "[]");
-    } catch {
-      return [];
-    }
-  });
-
-  // Ad player state machine
-  const [isAdPlaying, setIsAdPlaying] = useState(false);
-  const [adSecondsLeft, setAdSecondsLeft] = useState(5);
-  const [adTargetType, setAdTargetType] = useState<"normal" | "match" | null>(null);
-  const [adTargetMatchId, setAdTargetMatchId] = useState<string | null>(null);
-  const [adComplete, setAdComplete] = useState(false);
-  const [currentAdIndex, setCurrentAdIndex] = useState(0);
-  const [adMuted, setAdMuted] = useState(false);
-
-  // Sync state to local storage
-  useEffect(() => {
-    localStorage.setItem("dr_normal_mode_unlocked_until", String(normalModeUnlockedUntil));
-  }, [normalModeUnlockedUntil]);
-
-  useEffect(() => {
-    localStorage.setItem("dr_unlocked_matches", JSON.stringify(unlockedMatches));
-  }, [unlockedMatches]);
-
-  const MOCK_ADS = [
-    {
-      title: "ELEPHANT BET ANGOLA",
-      subtitle: "Bónus de Boas-Vindas de até 300%!",
-      description: "Aposte nas melhores ligas com as maiores odds de Angola. Registe-se hoje mesmo e triplique o seu primeiro depósito para começar a ganhar prémios fantásticos!",
-      cta: "Registar Agora",
-      accentColor: "#f59e0b",
-      bgGradient: "from-amber-600 to-amber-950"
-    },
-    {
-      title: "PREMIER BET ANGOLA",
-      subtitle: "A Maior Casa de Apostas de África",
-      description: "Descubra a fantástica funcionalidade do 'Bolada Rápida' e receba os seus ganhos instantaneamente via Multicaixa Express. É simples, rápido e 100% seguro!",
-      cta: "Apostar na Premier",
-      accentColor: "#10b981",
-      bgGradient: "from-emerald-600 to-emerald-950"
-    },
-    {
-      title: "BANTUBET ANGOLA",
-      subtitle: "Odds Gigantes e Cashout Completo",
-      description: "Não espere o jogo terminar! Use o Cashout do BantuBet para garantir os seus lucros ou reduzir as suas perdas a qualquer momento da partida. Controle as suas apostas!",
-      cta: "Entrar no BantuBet",
-      accentColor: "#3b82f6",
-      bgGradient: "from-blue-600 to-blue-950"
-    }
-  ];
-
-  const startAdPlayback = (type: "normal" | "match", matchId?: string) => {
-    try {
-      if (typeof (window as any).aclib !== 'undefined' && (window as any).aclib.runAutoTag) {
-        (window as any).aclib.runAutoTag({ zoneId: 'ggynhemder' });
-      }
-    } catch (e) {}
-    setAdTargetType(type);
-    setAdTargetMatchId(matchId || null);
-    setIsAdPlaying(true);
-    setAdSecondsLeft(5);
-    setAdComplete(false);
-    setCurrentAdIndex(Math.floor(Math.random() * MOCK_ADS.length));
-  };
-
-  useEffect(() => {
-    let timer: any;
-    if (isAdPlaying && adSecondsLeft > 0) {
-      timer = setInterval(() => {
-        setAdSecondsLeft(prev => prev - 1);
-      }, 1000);
-    } else if (isAdPlaying && adSecondsLeft === 0) {
-      setAdComplete(true);
-    }
-    return () => clearInterval(timer);
-  }, [isAdPlaying, adSecondsLeft]);
-
-  const handleClaimAdReward = () => {
-    if (adTargetType === "normal") {
-      const expiry = Date.now() + 24 * 60 * 60 * 1000;
-      setNormalModeUnlockedUntil(expiry);
-      addToast("Acesso completo desbloqueado por 24 horas!", "success");
-    } else if (adTargetType === "match" && adTargetMatchId) {
-      setUnlockedMatches(prev => {
-        if (prev.includes(adTargetMatchId)) return prev;
-        return [...prev, adTargetMatchId];
-      });
-      addToast("Palpite VIP desbloqueado com sucesso!", "success");
-    }
-    setIsAdPlaying(false);
-    setAdComplete(false);
-    setAdTargetType(null);
-    setAdTargetMatchId(null);
-  };
-
-  const isNormalModeUnlocked = useMemo(() => {
-    return hasVipAccess || (normalModeUnlockedUntil > Date.now());
-  }, [hasVipAccess, normalModeUnlockedUntil]);
 
   const [isAuthReady, setIsAuthReady] = useState(false);
 
@@ -2286,14 +2152,11 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <AdBanner isDarkMode={isDarkMode} />
-
             {loading ? <div className="py-40 flex justify-center"><RefreshCw className="animate-spin text-amber-500" size={40} /></div> : (
               matches.length === 0 ? <div className={isDarkMode ? "py-32 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-32 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('vazio')}</div> : 
               matches.map((m, i) => {
-                const isMatchVip = m.isVipMatch === true || (i < 5);
-                const isMatchUnlocked = hasVipAccess || unlockedMatches.includes(`${m.homeTeam}-${m.awayTeam}`);
-                const isMatchLocked = isMatchVip && !isMatchUnlocked;
+                const isMatchVip = m.isVipMatch === true;
+                const isMatchLocked = isMatchVip && !hasVipAccess;
 
                 const blockTitles = [
                   "🔥 O MELHOR PALPITE DE HOJE!",
@@ -2334,12 +2197,6 @@ const App: React.FC = () => {
                             </div>
 
                             <div className="grid grid-cols-1 gap-2">
-                              <button 
-                                onClick={() => startAdPlayback("match", `${m.homeTeam}-${m.awayTeam}`)}
-                                className="w-full bg-amber-500 hover:bg-amber-400 text-black font-black py-4 rounded-xl text-[10px] uppercase italic flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
-                              >
-                                🔓 DESBLOQUEAR GRÁTIS (VER ANÚNCIO)
-                              </button>
                               <a 
                                 href={appConfig.loja}
                                 target="_blank"
@@ -2464,7 +2321,6 @@ const App: React.FC = () => {
                </div>
              )}
 
-             <AdBanner isDarkMode={isDarkMode} />
 
              {/* Conteúdo Dinâmico com base na Tab selecionada */}
              {loading ? (
@@ -2558,7 +2414,7 @@ const App: React.FC = () => {
                ) : (
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    {customBets.map((cb, i) => {
-                     const isLocked = i > 0 && !hasVipAccess && !unlockedMatches.includes(cb.id || `cb_${i}`);
+                     const isLocked = i > 0 && !hasVipAccess;
                      const totalSelections = cb.matches?.reduce((sum, m) => sum + (m.selections?.length || 0), 0) || 0;
 
                      if (isLocked) {
@@ -2583,12 +2439,6 @@ const App: React.FC = () => {
                            </div>
 
                            <div className="w-full space-y-2.5">
-                             <button 
-                               onClick={() => startAdPlayback("match", cb.id || `cb_${i}`)}
-                               className="w-full bg-amber-500 hover:bg-amber-400 text-black p-4 rounded-[1.5rem] font-black uppercase italic flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all text-[11px] tracking-tight border-b-4 border-amber-600"
-                             >
-                               🔓 DESBLOQUEAR GRÁTIS (VER ANÚNCIO)
-                             </button>
                              <a 
                                href={appConfig.loja}
                                target="_blank" 
@@ -2773,7 +2623,6 @@ const App: React.FC = () => {
                 </div>
               </div>
 
-              <AdBanner isDarkMode={isDarkMode} />
 
              {loading ? <div className="py-40 flex justify-center"><RefreshCw className="animate-spin text-emerald-500" size={40} /></div> : (
                ganhos.length === 0 ? <div className={isDarkMode ? "py-40 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-40 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('historicoVazio')}</div> : 
@@ -2831,7 +2680,6 @@ const App: React.FC = () => {
         {activeTab === "boletim" && (
           <section className="animate-in space-y-6 pb-20">
             <h3 className={isDarkMode ? "text-xl font-black italic uppercase px-3 tracking-tighter text-white" : "text-xl font-black italic uppercase px-3 tracking-tighter text-slate-900"}>{t('boletim').toUpperCase()}</h3>
-            <AdBanner isDarkMode={isDarkMode} />
             {betSlip.length === 0 ? <div className={isDarkMode ? "py-40 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-40 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('vazio')}</div> : 
               <div className="space-y-4">
                 <div className="space-y-3">
@@ -2887,7 +2735,6 @@ const App: React.FC = () => {
         {activeTab === "guardados" && (
           <section className="space-y-6 animate-in pb-20">
              <h3 className={isDarkMode ? "text-xl font-black italic uppercase px-3 tracking-tighter text-white" : "text-xl font-black italic uppercase px-3 tracking-tighter text-slate-900"}>{t('myTickets')}</h3>
-             <AdBanner isDarkMode={isDarkMode} />
              {savedTickets.length === 0 ? <div className={isDarkMode ? "py-40 text-center font-black uppercase italic tracking-widest text-lg text-zinc-800" : "py-40 text-center font-black uppercase italic tracking-widest text-lg text-slate-300"}>{t('vazio')}</div> : 
                savedTickets.map(tkt => (
                  <div key={tkt.id} className={isDarkMode ? "p-6 border-4 rounded-[2.5rem] shadow-xl bg-zinc-900/60 border-zinc-800 relative space-y-4" : "p-6 border-4 rounded-[2.5rem] shadow-xl bg-white border-slate-200 relative space-y-4"}>
@@ -2996,189 +2843,6 @@ const App: React.FC = () => {
           </button>
         ))}
       </nav>
-
-      {/* 24-HOUR ACCESS OFFERWALL OVERLAY */}
-      {!isNormalModeUnlocked && user && (
-        <div className="fixed inset-0 z-[150] bg-slate-950 flex flex-col items-center justify-center p-6 overflow-y-auto">
-          <div className="w-full max-w-md space-y-8 text-center animate-in">
-            {/* Dr. Palpites Header branding */}
-            <div className="space-y-4">
-              <div className="w-24 h-24 rounded-[2.5rem] mx-auto overflow-hidden shadow-[0_0_50px_rgba(245,158,11,0.25)] border-4 border-amber-500 flex items-center justify-center bg-black">
-                <img src={appConfig.logoUrl} className="w-full h-full object-cover" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = 'https://i.ibb.co/xq4qVtZd/grok-image-lf8jcb.webp'; }} />
-              </div>
-              <div>
-                <h1 className="text-4xl font-black uppercase italic tracking-tighter text-white leading-none">
-                  DR <span className="text-amber-500">PALPITES</span>
-                </h1>
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 italic mt-2">
-                  Não aposta na sorte...aposta na ciência.!!
-                </p>
-              </div>
-            </div>
-
-            {/* Main Offerwall layout */}
-            <div className="bg-zinc-900/90 border-4 border-zinc-800 rounded-[3rem] p-6 shadow-2xl relative overflow-hidden space-y-6">
-              <div className="absolute top-3 right-5 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[7px] font-black tracking-widest text-zinc-500 uppercase">Adcash Offerwall</span>
-              </div>
-
-              <div className="space-y-2 pt-2">
-                <h2 className="text-2xl font-black italic uppercase text-amber-500 tracking-tight leading-none">Welcome to Dr. PALPITES</h2>
-                <h3 className="text-xs font-black uppercase text-white tracking-widest">Unlock more content</h3>
-                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-wider leading-relaxed">
-                  Take action to continue accessing the content on this site
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                {/* Option 1: View short ad */}
-                <div className="p-4 rounded-[1.8rem] border-4 border-zinc-800 bg-black/50 text-left space-y-3.5 hover:border-amber-500/20 transition-all">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="text-[12px] font-black uppercase text-white tracking-tight">View a short ad</h4>
-                      <p className="text-[9px] font-black text-zinc-500 uppercase italic">Site-wide access for 24 hours...</p>
-                    </div>
-                    <span className="text-[9px] bg-amber-500/10 text-amber-500 px-2.5 py-1 rounded-full font-black border border-amber-500/20">GRÁTIS</span>
-                  </div>
-                  <button 
-                    onClick={() => startAdPlayback("normal")}
-                    className="w-full bg-amber-500 hover:bg-amber-400 text-black font-black py-4 rounded-[1.2rem] text-[10px] uppercase italic flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 border-b-4 border-amber-600"
-                  >
-                    🔓 DESBLOQUEAR GRÁTIS DE 24H
-                  </button>
-                </div>
-
-                {/* Option 2: VIP Access */}
-                <div className="p-4 rounded-[1.8rem] border-4 border-zinc-800 bg-zinc-950/40 text-left space-y-3.5 hover:border-amber-500/20 transition-all">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="text-[12px] font-black uppercase text-amber-500 tracking-tight">Adquirir Acesso VIP</h4>
-                      <p className="text-[9px] font-black text-zinc-500 uppercase italic">Acesso ilimitado instantâneo sem nenhum anúncio</p>
-                    </div>
-                    <span className="text-[9px] bg-amber-500 text-black px-2.5 py-1 rounded-full font-black">👑 VIP</span>
-                  </div>
-                  <a 
-                    href={appConfig.loja}
-                    target="_blank"
-                    className="w-full bg-zinc-950 hover:bg-zinc-900 text-amber-500 border-2 border-amber-500/30 font-black py-4 rounded-[1.2rem] text-[10px] uppercase italic flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
-                  >
-                    👑 ADQUIRIR MEMBRESIA VIP
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-center gap-2">
-              <button 
-                onClick={() => {
-                  setUser(null);
-                  localStorage.removeItem("dr_user");
-                }}
-                className="text-[10px] font-black text-zinc-600 hover:text-white uppercase italic tracking-widest transition-colors flex items-center gap-1"
-              >
-                <LogOut size={12} /> {t('logout').toUpperCase()}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* REWARDED AD VIDEO PLAYER SIMULATOR */}
-      {isAdPlaying && (
-        <div className="fixed inset-0 z-[200] bg-black/98 flex flex-col items-center justify-center p-4">
-          <div className="w-full max-w-sm bg-zinc-950 rounded-[3rem] border-4 border-zinc-800 overflow-hidden shadow-2xl relative flex flex-col aspect-[9/16]">
-            {/* Top Indicator bar */}
-            <div className="p-4 bg-black/60 border-b border-zinc-900 flex justify-between items-center text-[9px] font-black uppercase text-zinc-400">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-                <span className="text-white tracking-widest">PATROCINADO ADCASH</span>
-              </div>
-              <button 
-                onClick={() => setAdMuted(!adMuted)}
-                className="p-1.5 hover:bg-zinc-900 rounded-lg transition-colors text-white"
-              >
-                {adMuted ? "🔇 MUTED" : "🔊 AUDIO"}
-              </button>
-            </div>
-
-            {/* Interactive Video Body */}
-            <div className={`flex-1 p-6 bg-gradient-to-b ${MOCK_ADS[currentAdIndex].bgGradient} flex flex-col justify-between items-center text-center relative overflow-hidden`}>
-              {/* Background ambient animations */}
-              <div className="absolute inset-0 opacity-10 flex items-center justify-center">
-                <div className="w-72 h-72 rounded-full bg-white animate-pulse" />
-              </div>
-
-              {/* Ad Logo area */}
-              <div className="pt-8 space-y-3 z-10">
-                <div className="w-20 h-20 rounded-[2rem] bg-black/80 border-4 border-amber-500 flex items-center justify-center mx-auto shadow-xl">
-                  <span className="text-3xl">🎮</span>
-                </div>
-                <h3 className="text-xl font-black uppercase tracking-tight text-white leading-none">
-                  {MOCK_ADS[currentAdIndex].title}
-                </h3>
-                <span className="inline-block bg-black/60 text-amber-500 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider border border-amber-500/20">
-                  {MOCK_ADS[currentAdIndex].subtitle}
-                </span>
-              </div>
-
-              {/* Ad message */}
-              <div className="px-4 py-6 bg-black/50 backdrop-blur-sm rounded-[2rem] border-2 border-zinc-800/50 max-w-[280px] z-10 space-y-2">
-                <p className="text-[11px] font-black text-zinc-300 leading-relaxed uppercase">
-                  {MOCK_ADS[currentAdIndex].description}
-                </p>
-                <button 
-                  onClick={() => {
-                    try {
-                      if (typeof (window as any).aclib !== 'undefined' && (window as any).aclib.runAutoTag) {
-                        (window as any).aclib.runAutoTag({ zoneId: 'ggynhemder' });
-                      }
-                    } catch (e) {}
-                  }}
-                  className="bg-amber-500 text-black font-black uppercase text-[10px] tracking-widest py-2.5 px-6 rounded-full italic hover:scale-105 transition-transform"
-                >
-                  {MOCK_ADS[currentAdIndex].cta}
-                </button>
-              </div>
-
-              {/* Status footer */}
-              <div className="w-full z-10 space-y-3">
-                <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest italic animate-bounce">
-                  O seu palpite científico está a ser calculado pela IA do Dr. Palpites...
-                </p>
-              </div>
-            </div>
-
-            {/* Progress and Countdown controller bar */}
-            <div className="p-6 bg-zinc-950 border-t border-zinc-900 space-y-4">
-              {/* Progress bar */}
-              <div className="w-full h-2 bg-zinc-900 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-amber-500 transition-all duration-1000"
-                  style={{ width: `${((5 - adSecondsLeft) / 5) * 100}%` }}
-                />
-              </div>
-
-              {/* Action buttons */}
-              {adComplete ? (
-                <button 
-                  onClick={handleClaimAdReward}
-                  className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-black py-4 rounded-[1.5rem] text-[11px] uppercase italic tracking-wider flex items-center justify-center gap-2 shadow-xl border-b-4 border-emerald-600 animate-bounce"
-                >
-                  🎁 RESGATAR RECOMPENSA & FECHAR
-                </button>
-              ) : (
-                <div className="flex items-center justify-center gap-2 text-zinc-500 py-3">
-                  <span className="animate-spin h-3 w-3 border-2 border-amber-500 border-t-transparent rounded-full" />
-                  <span className="text-[9px] font-black uppercase tracking-widest">
-                    Assista para ganhar recompensa ({adSecondsLeft}s)
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {activeAlert && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-8 bg-black/80 backdrop-blur-md animate-in">

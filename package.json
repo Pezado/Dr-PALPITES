@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "update:adblock": "curl -s -L -o public/site_core_lib_88.js 'https://adbpage.com/adblock?v=3&format=js&lnxv=2'",
     "lint": "tsc --noEmit",
     "preview": "vite preview"
   },
